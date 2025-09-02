@@ -2,8 +2,8 @@ package com.sa.employee_service.auth.infrastructure.restadapter.dtos;
 
 import java.util.List;
 
-import com.sa.sharedEmployeeService.dto.EmployeeResponseDTO;
-import com.sa.sharedEmployeeService.dto.PermissionResponse;
+import com.sa.employee_service.shared.infrastructure.dtos.EmployeeResponseDTO;
+import com.sa.employee_service.shared.infrastructure.dtos.PermissionResponse;
 
 import lombok.Value;
 

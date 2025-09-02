@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 
 import com.sa.employee_service.employees.infrastructure.repositoryadapter.models.PermissionEntity;
 import com.sa.shared.dtos.IdRequestDTO;
-import com.sa.sharedEmployeeService.dto.PermissionResponse;
+import com.sa.employee_service.shared.infrastructure.dtos.PermissionResponse;
 
 @Mapper(componentModel = "spring")
 public interface PermissionMapper {

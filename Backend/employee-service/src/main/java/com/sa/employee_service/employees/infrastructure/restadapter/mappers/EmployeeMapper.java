@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 import com.sa.employee_service.employees.infrastructure.repositoryadapter.models.EmployeeEntity;
 import com.sa.employee_service.employees.infrastructure.restadapter.dtos.CreateEmployeeRequest;
 import com.sa.employee_service.employees.infrastructure.restadapter.dtos.EmployeeRequestDTO;
-import com.sa.sharedEmployeeService.dto.EmployeeResponseDTO;
+import com.sa.employee_service.shared.infrastructure.dtos.EmployeeResponseDTO;
 
 @Mapper(componentModel = "spring")
 public interface EmployeeMapper {

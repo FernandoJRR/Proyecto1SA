@@ -5,7 +5,7 @@ import java.util.List;
 import org.mapstruct.Mapper;
 
 import com.sa.employee_service.employees.domain.Employee;
-import com.sa.sharedEmployeeService.dto.EmployeeResponseDTO;
+import com.sa.employee_service.shared.infrastructure.dtos.EmployeeResponseDTO;
 
 @Mapper(componentModel = "spring")
 public interface EmployeeResponseMapper {

@@ -23,7 +23,7 @@ import com.sa.employee_service.employees.infrastructure.restadapter.mappers.Empl
 import com.sa.employee_service.employees.infrastructure.restadapter.mappers.PermissionMapper;
 import com.sa.shared.exceptions.DuplicatedEntryException;
 import com.sa.shared.exceptions.NotFoundException;
-import com.sa.sharedEmployeeService.dto.EmployeeTypeResponseDTO;
+import com.sa.employee_service.shared.infrastructure.dtos.EmployeeTypeResponseDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

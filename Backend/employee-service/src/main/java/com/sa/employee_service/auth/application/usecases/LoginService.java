@@ -21,8 +21,6 @@ import com.sa.employee_service.users.application.usecases.FindUserByUsernameUseC
 import com.sa.employee_service.users.domain.User;
 import com.sa.employee_service.users.infrastructure.repositoryadapter.models.UserEntity;
 import com.sa.shared.exceptions.NotFoundException;
-import com.sa.sharedEmployeeService.dto.EmployeeResponseDTO;
-import com.sa.sharedEmployeeService.dto.PermissionResponse;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

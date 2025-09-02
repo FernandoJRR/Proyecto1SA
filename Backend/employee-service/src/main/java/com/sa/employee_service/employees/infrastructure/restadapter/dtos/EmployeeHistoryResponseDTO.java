@@ -1,6 +1,6 @@
 package com.sa.employee_service.employees.infrastructure.restadapter.dtos;
 
-import com.sa.sharedEmployeeService.dto.EmployeeResponseDTO;
+import com.sa.employee_service.shared.infrastructure.dtos.EmployeeResponseDTO;
 
 import lombok.Value;
 

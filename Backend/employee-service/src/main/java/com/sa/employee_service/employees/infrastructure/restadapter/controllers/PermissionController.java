@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sa.employee_service.employees.application.inputports.ForPermissionsPort;
 import com.sa.employee_service.employees.infrastructure.repositoryadapter.models.PermissionEntity;
 import com.sa.employee_service.employees.infrastructure.restadapter.mappers.PermissionMapper;
-import com.sa.sharedEmployeeService.dto.PermissionResponse;
+import com.sa.employee_service.shared.infrastructure.dtos.PermissionResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

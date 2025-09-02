@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 import com.sa.employee_service.employees.infrastructure.repositoryadapter.models.EmployeeTypeEntity;
 import com.sa.employee_service.employees.infrastructure.restadapter.dtos.SaveEmployeeTypeRequestDTO;
 import com.sa.shared.dtos.IdRequestDTO;
-import com.sa.sharedEmployeeService.dto.EmployeeTypeResponseDTO;
+import com.sa.employee_service.shared.infrastructure.dtos.EmployeeTypeResponseDTO;
 
 @Mapper(componentModel = "spring")
 public interface EmployeeTypeMapper {

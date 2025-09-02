@@ -47,7 +47,7 @@ import com.sa.employee_service.users.infrastructure.restadapter.mappers.UserMapp
 import com.sa.shared.exceptions.DuplicatedEntryException;
 import com.sa.shared.exceptions.InvalidPeriodException;
 import com.sa.shared.exceptions.NotFoundException;
-import com.sa.sharedEmployeeService.dto.EmployeeResponseDTO;
+import com.sa.employee_service.shared.infrastructure.dtos.EmployeeResponseDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
