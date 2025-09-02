@@ -1,0 +1,28 @@
+package com.sa.finances_service.payments.infrastructure.restadapter.dtos;
+
+import java.math.BigDecimal;
+import java.util.UUID;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+public class CreatePaymentRequest {
+
+    private UUID establishmentId;
+
+    private UUID clientId;
+
+    private String sourceType;
+
+    private UUID sourceId;
+
+    private String method;
+
+    private BigDecimal subtotal;
+
+    private String cardNumber;
+
+    private String promotionId;
+}

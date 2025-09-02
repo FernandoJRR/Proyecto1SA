@@ -1,0 +1,89 @@
+spring:
+  profiles:
+    active: local
+
+  application:
+    name: api-gateway
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.MariaDBDialect
+
+
+  cloud:
+    gateway:
+      routes:
+        - id: employee-service
+          uri: lb://EMPLOYEE-SERVICE
+          predicates:
+            - Path=/api/v1/login, /api/v1/login/**,/api/v1/permissions/**,/api/v1/permissions,/api/v1/employee-types/**,/api/v1/employee-types,/api/v1/employees/**,/v3/api-docs/
+        - id: employee-service-docs
+          uri: lb://EMPLOYEE-SERVICE
+          predicates:
+            - Path=/employee-service/v3/api-docs
+          filters:
+            - RewritePath=/employee-service/v3/api-docs, /v3/api-docs
+
+
+
+        - id: establishment-service
+          uri: lb://ESTABLISHMENT-SERVICE
+          predicates:
+            - Path=/api/v1/hotels,/api/v1/hotels/**,/api/v1/restaurants,/api/v1/restaurants/**
+        - id: establishment-service-docs
+          uri: lb://ESTABLISHMENT-SERVICE
+          predicates:
+            - Path=/establishment-service/v3/api-docs
+          filters:
+            - RewritePath=/establishment-service/v3/api-docs, /v3/api-docs
+
+
+        - id: client-service
+          uri: lb://CLIENT-SERVICE
+          predicates:
+            - Path=/api/v1/clients, /api/v1/clients/**, /api/v1/reviews, /api/v1/reviews/**, /api/v1/reservations, /api/v1/reservations/**, /api/v1/orders, /api/v1/orders/**
+        - id: client-service-docs
+          uri: lb://CLIENT-SERVICE
+          predicates:
+            - Path=/client-service/v3/api-docs
+          filters:
+            - RewritePath=/client-service/v3/api-docs, /v3/api-docs
+
+
+        - id: finances-service
+          uri: lb://FINANCES-SERVICE
+          predicates:
+            - Path=/api/v1/promotions, /api/v1/promotions/**, /api/v1/payments, /api/v1/payments/**, /api/v1/reservation-reports,/api/v1/reservation-reports/**,/api/v1/popular-hours-report/**,/api/v1/popular-hours-report,/api/v1/reservations-exports/**,/api/v1/reservation-profit,/api/v1/reservation-profit/**,/api/v1/reservation-not-show,/api/v1/reservation-not-show/**,/api/v1/averange-time,/api/v1/averange-time/**,/api/v1/frequent-customers,/api/v1/frequent-customers/**,/v3/api-docs
+        - id: finances-service-docs
+          uri: lb://FINANCES-SERVICE
+          predicates:
+            - Path=/finances-service/v3/api-docs
+          filters:
+            - RewritePath=/finances-service/v3/api-docs, /v3/api-docs
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: Employee Service
+        url: /employee-service/v3/api-docs
+      - name: Establishment Service
+        url: /establishment-service/v3/api-docs
+      - name: Client Service
+        url: /client-service/v3/api-docs
+      - name: Finances Service
+        url: /finances-service/v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+eureka:
+  instance:
+    instance-id: ${spring.application.name}:${random.uuid}
+
+
+server:
+  port: 8080
