@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,10 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sa.client_service.reservations.application.dtos.CreateReservationDTO;
 import com.sa.client_service.reservations.application.dtos.FindReservationsDTO;
 import com.sa.client_service.reservations.application.inputports.CreateReservationInputPort;
+import com.sa.client_service.reservations.application.inputports.FindReservationByIdInputPort;
 import com.sa.client_service.reservations.application.inputports.FindReservationsInputPort;
 import com.sa.client_service.reservations.domain.Reservation;
 import com.sa.client_service.reservations.infrastructure.restadapter.dtos.CreateReservationRequest;
+import com.sa.client_service.reservations.infrastructure.restadapter.dtos.ReservationHydratedResponse;
 import com.sa.client_service.reservations.infrastructure.restadapter.dtos.ReservationResponse;
+import com.sa.client_service.reservations.infrastructure.restadapter.mappers.ReservationHydrationAssembler;
 import com.sa.client_service.reservations.infrastructure.restadapter.mappers.ReservationRestMapper;
 import com.sa.shared.exceptions.InvalidParameterException;
 import com.sa.shared.exceptions.NotFoundException;
@@ -40,7 +44,9 @@ public class ReservationController {
 
     private final CreateReservationInputPort createReservationInputPort;
     private final FindReservationsInputPort findReservationsInputPort;
+    private final FindReservationByIdInputPort findReservationByIdInputPort;
     private final ReservationRestMapper reservationRestMapper;
+    private final ReservationHydrationAssembler reservationHydrationAssembler;
 
     @Operation(summary = "Crear una nueva reservacion", description = "Este endpoint permite la creación de una nueva reservacion en el sistema.")
     @ApiResponses(value = {
@@ -70,7 +76,7 @@ public class ReservationController {
             @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content)
     })
     @GetMapping
-    public ResponseEntity<List<ReservationResponse>> getReservations(
+    public ResponseEntity<List<ReservationHydratedResponse>> getReservations(
             @RequestParam(required = false) UUID hotelId,
             @RequestParam(required = false) UUID roomId,
             @RequestParam(required = false) String clientCui,
@@ -88,8 +94,26 @@ public class ReservationController {
 
         List<Reservation> result = findReservationsInputPort.handle(query);
 
-        List<ReservationResponse> response = reservationRestMapper.toResponse(result);
+        List<ReservationHydratedResponse> response = reservationHydrationAssembler.toResponseList(result);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @Operation(summary = "Obtener una reservacion por ID", description = "Obtiene una reservacion del sistema por su ID.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Reservacion obtenida correctamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ReservationResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Parámetros inválidos", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content)
+    })
+    @GetMapping("/{reservationId}")
+    public ResponseEntity<ReservationHydratedResponse> getReservation(
+            @PathVariable("reservationId") UUID reservationId)
+            throws NotFoundException {
+
+        Reservation result = findReservationByIdInputPort.handle(reservationId.toString());
+
+        ReservationHydratedResponse response = reservationHydrationAssembler.toResponse(result);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

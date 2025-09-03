@@ -44,3 +44,34 @@ export interface Dish extends Entity {
 export async function getRestaurantDishes(restaurant_id: string) {
   return await $api<Dish[]>(`${CURRENT_RESTAURANTS_URI}/${restaurant_id}/dishes`)
 }
+
+export interface CreateRestaurantPayload {
+  name: string;
+  address: string;
+  hotelId?: string | null;
+}
+
+/**
+ * Crea un restaurante nuevo. (hotelId es opcional)
+ */
+export async function createRestaurant(payload: CreateRestaurantPayload) {
+  return await $api<Restaurant>(`${CURRENT_RESTAURANTS_URI}`, {
+    method: 'POST',
+    body: payload
+  })
+}
+
+export interface CreateDishPayload {
+  name: string;
+  price: number;
+}
+
+/**
+ * Crea un platillo (dish) para un restaurante.
+ */
+export async function createDish(restaurant_id: string, payload: CreateDishPayload) {
+  return await $api<Dish>(`${CURRENT_RESTAURANTS_URI}/${restaurant_id}/dishes`, {
+    method: 'POST',
+    body: payload
+  })
+}

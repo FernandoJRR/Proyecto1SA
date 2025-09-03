@@ -44,3 +44,36 @@ export async function getHotelById(hotel_id: string) {
 export async function getRestaurantsByHotelId(hotel_id: string) {
   return await $api<Restaurant[]>(`/v1/hotels/${hotel_id}/restaurants`)
 }
+
+export interface CreateHotelPayload {
+  name: string;
+  address: string;
+  maintenanceCostPerWeek: number;
+}
+
+/**
+ * Crea un hotel nuevo.
+ */
+export async function createHotel(payload: CreateHotelPayload) {
+  return await $api<Hotel>(`${CURRENT_HOTELS_URI}`, {
+    method: 'POST',
+    body: payload,
+  })
+}
+
+export interface CreateRoomPayload {
+  number: string;
+  capacity: number;
+  pricePerNight: number;
+  status?: 'AVAILABLE' | 'OCCUPIED' | 'MAINTENANCE' | string;
+}
+
+/**
+ * Crea una habitación para un hotel específico.
+ */
+export async function createHotelRoom(hotel_id: string, payload: CreateRoomPayload) {
+  return await $api<Room>(`${CURRENT_HOTELS_URI}/${hotel_id}`, {
+    method: 'POST',
+    body: payload,
+  })
+}

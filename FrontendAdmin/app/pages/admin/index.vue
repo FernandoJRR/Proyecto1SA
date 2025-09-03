@@ -37,7 +37,7 @@
 
             <!-- Responsive Grid (scales for many future cards) -->
             <div v-if="filteredMenus.length"
-                class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+                class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 <template v-for="menu in filteredMenus" :key="menu.route">
                     <MenuShortcutCard :menu="menu" />
                 </template>

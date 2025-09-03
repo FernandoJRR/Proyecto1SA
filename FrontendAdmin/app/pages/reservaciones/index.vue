@@ -1,187 +1,147 @@
 <template>
-  <div class="m-6 overflow-x-auto">
-    <div class="max-w-[1200px]">
-      <DataTable :value="state.data as any[]" tableStyle="min-width: 50rem" stripedRows
-        :loading="asyncStatus === 'loading'" filterDisplay="row">
-        <template #header>
-          <div class="flex flex-wrap items-center justify-between gap-2 w-full">
-            <span class="text-xl font-bold">Reservaciones</span>
-            <router-link to="/reservaciones/crear">
-              <Button icon="pi pi-plus" label="Nueva Reservación" rounded raised />
-            </router-link>
-          </div>
-        </template>
+  <div class="min-h-screen px-4 sm:px-6 lg:px-8 py-8 bg-slate-50">
+    <!-- Page Header -->
+    <header class="max-w-7xl mx-auto mb-6" role="banner">
+        <NuxtLink to="/" class="inline-block mb-2 sm:mb-0">
+            <Button size="small" icon="pi pi-arrow-left" label="Volver"
+                class="text-slate-700 hover:text-slate-900 mb-4" />
+        </NuxtLink>
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h1 class="text-2xl font-extrabold tracking-tight text-slate-900">Reservaciones</h1>
+        <router-link to="/reservaciones/crear">
+          <Button icon="pi pi-plus" label="Nueva reservación" rounded raised />
+        </router-link>
+      </div>
+    </header>
 
-        <Column header="ID de Reservacion" field="id">
-          <template #filter>
-            <InputText v-model="spec.id" class="w-full" placeholder="Filtrar por usuario" @input="refetch()" />
+    <!-- Table -->
+    <main class="max-w-7xl mx-auto" role="main">
+      <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow">
+        <DataTable
+          :value="state.data as any[]"
+          tableStyle="min-width: 64rem"
+          stripedRows
+          rowHover
+          :loading="asyncStatus === 'loading'"
+          :paginator="true"
+          :rows="10"
+          :rowsPerPageOptions="[10,20,50]"
+        >
+          <template #header>
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="text-sm text-slate-600">Total: <span class="font-semibold">{{ state.data ? (state.data as any[]).length : 0 }}</span></span>
+            </div>
           </template>
-          <template #body="{ data }">{{ data.id ?? "error" }}</template>
-        </Column>
 
+          <Column header="ID">
+            <template #body="{ data }">
+              <span class="font-mono text-xs">{{ data.id }}</span>
+            </template>
+          </Column>
 
-        <Column header="ID del juego" field="gameId">
-          <template #filter>
-            <InputText v-model="spec.gameId" class="w-full" placeholder="Filtrar por usuario" @input="refetch()" />
-          </template>
-          <template #body="{ data }">{{ data.gameId ?? "error" }}</template>
-        </Column>
+          <Column header="CUI cliente">
+            <template #body="{ data }">{{ data.clientCui || '—' }}</template>
+          </Column>
 
-        <Column header="Fecha" field="date">
-          <template #filter>
-            <InputText v-model="spec.date" class="w-full" placeholder="AAAA-MM-DD" @input="refetch()" />
-          </template>
-          <template #body="{ data }">{{ data.date }}</template>
-        </Column>
+          <Column header="Hotel">
+            <template #body="{ data }">
+              <span class="font-mono text-xs">{{ data.hotel.name || '—' }}</span>
+            </template>
+          </Column>
 
-        <Column header="Hora inicio" field="startTime">
-          <template #filter>
-            <InputText v-model="spec.startTime" class="w-full" placeholder="HH:MM" @input="refetch()" />
-          </template>
-          <template #body="{ data }">{{ data.startTime }}</template>
-        </Column>
+          <Column header="Habitación">
+            <template #body="{ data }">
+              <span class="font-mono text-xs">{{ data.room.number || '—' }}</span>
+            </template>
+          </Column>
 
-        <Column header="Hora fin" field="endTime">
-          <template #filter>
-            <InputText v-model="spec.endTime" class="w-full" placeholder="HH:MM" @input="refetch()" />
-          </template>
-          <template #body="{ data }">{{ data.endTime }}</template>
-        </Column>
+          <Column header="Inicio">
+            <template #body="{ data }">{{ formatDate(data.startDate) }}</template>
+          </Column>
 
-        <Column header="Usuario" field="customerFullname">
-          <template #filter>
-            <InputText v-model="spec.customerFullName" class="w-full" placeholder="Filtrar por usuario"
-              @input="refetch()" />
-          </template>
-          <template #body="{ data }">{{ data.customerFullName ?? "error" }}</template>
-        </Column>
+          <Column header="Fin">
+            <template #body="{ data }">{{ formatDate(data.endDate) }}</template>
+          </Column>
 
+          <Column header="Subtotal">
+            <template #body="{ data }">{{ formatGTQ(data.subtotal) }}</template>
+          </Column>
 
-        <Column header="Usuario NIT" field="customerNit">
-          <template #filter>
-            <InputText v-model="spec.customerNIT" class="w-full" placeholder="Filtrar por usuario" @input="refetch()" />
-          </template>
-          <template #body="{ data }">{{ data.customerNIT ?? "error" }}</template>
-        </Column>
+          <Column header="Promo">
+            <template #body="{ data }">
+              <template v-if="data.promotionApplied">
+                <Tag severity="info" class="text-xs px-2 py-0.5 truncate max-w-[8rem] text-center">
+                {{data.promotionApplied.percentOff}}%<br/>
+                - Q.{{data.promotionApplied.amountOff}}
+                </Tag>
+              </template>
+              <span v-else><Tag :value="'No'" severity="contrast"/></span>
+            </template>
+          </Column>
 
-        <Column header="Pagado" field="paid">
-          <template #filter>
-            <Dropdown v-model="spec.paid" :options="booleanOptions" class="w-full" placeholder="Filtrar pago"
-              optionLabel="label" optionValue="value" @change="refetch()" />
-          </template>
-          <template #body="{ data }">
-            <Tag :severity="data.paid ? 'success' : 'warning'" :value="data.paid ? 'Sí' : 'No'" />
-          </template>
-        </Column>
+          <Column header="Total">
+            <template #body="{ data }">{{ formatGTQ(data.totalCost) }}</template>
+          </Column>
 
-        <Column header="Estado" field="notShow">
-          <template #filter>
-            <Dropdown v-model="spec.notShow" :options="booleanOptions" class="w-full" placeholder="Filtrar cancelación"
-              optionLabel="label" optionValue="value" @change="refetch()" />
-          </template>
-          <template #body="{ data }">
-            <Tag v-if="!data.notShow && data.paid" severity="info" value="Asistió" />
-            <Tag v-else-if="!data.notShow && !data.paid" severity="warn" value="Programada" />
-            <Tag v-else-if="data.notShow" severity="danger" value="Cancelada" />
-          </template>
-        </Column>
-
-        <Column header="Acciones">
-          <template #body="{ data }">
-              <router-link :to="`/reservaciones/ver/${data.id}`">
+          <Column header="Acciones">
+            <template #body="{ data }">
+              <router-link :to="`/reservaciones/${data.id}`">
                 <Button icon="pi pi-search" text rounded label="Ver" />
               </router-link>
-              <Button v-if="!data.notShow" label="Cancelar" icon="pi pi-times" severity="danger" text rounded
-                :disabled="data.cancelled" @click="cancel(data.id)" />
-          </template>
-        </Column>
+            </template>
+          </Column>
 
-        <template #footer>
-          Hay en total {{ state.data?.length || 0 }} reservaciones.
-        </template>
-      </DataTable>
-    </div>
-    <ConfirmDialog />
+          <template #empty>
+            <div class="py-10 text-center text-slate-600">
+              <i class="pi pi-inbox text-3xl mb-2 text-slate-400" aria-hidden="true"></i>
+              <div>No hay reservaciones registradas.</div>
+            </div>
+          </template>
+
+          <template #loading>
+            <div class="py-10 text-center text-slate-600">
+              Cargando reservaciones…
+            </div>
+          </template>
+
+          <template #footer>
+            Hay en total {{ state.data ? (state.data as any[]).length : 0 }} reservaciones.
+          </template>
+        </DataTable>
+      </div>
+    </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { toast } from "vue-sonner";
-import { useConfirm } from "primevue/useconfirm";
-import ConfirmDialog from "primevue/confirmdialog";
-import {
-  getAllReservations,
-  cancelReservation,
-  payReservation,
-  type Reservation,
-  type SpecReservation,
-} from "~/lib/api/reservation/reservation";
+import { Tag } from 'primevue'
+import { getAllReservations } from '~/lib/api/reservations/reservations'
 
-const queryCache = useQueryCache();
-const confirm = useConfirm();
+// Data
+const { state, asyncStatus } = useCustomQuery({
+  key: ['reservationsIndex'],
+  query: () => getAllReservations(),
+})
 
-const spec = reactive<SpecReservation>({
+// Helpers
+function formatDate(v: string | Date | null | undefined) {
+  if (!v) return '—'
+  try {
+    const d = typeof v === 'string' ? new Date(v) : v
+    return new Intl.DateTimeFormat('es-GT', { dateStyle: 'medium' }).format(d)
+  } catch {
+    return String(v)
+  }
+}
 
-  id: null,
-  userId: null,
-  gameId: null,
-  startTime: null,
-  endTime: null,
-  customerFullName: null,
-  customerNIT: null,
-  date: null,
-  notShow: null,
-  paid: null,
-});
-
-const booleanOptionsModalidad = [
-  { label: "Todos", value: null },
-  { label: "Virtual", value: true },
-  { label: "Presencial", value: false },
-];
-
-const booleanOptions = [
-  { label: "Todos", value: null },
-  { label: "Sí", value: true },
-  { label: "No", value: false },
-];
-
-const { state, asyncStatus, refetch } = useCustomQuery({
-  key: ["getAllReservations", spec],
-  query: () => getAllReservations(spec),
-});
-
-const cancel = (id: string) => {
-  confirm.require({
-    message: "¿Estás seguro de cancelar esta reservación?",
-    header: "Confirmación",
-    icon: "pi pi-exclamation-triangle",
-    accept: () => mutateCancel(id),
-    reject: () => toast.warning("Acción cancelada"),
-  });
-};
-
-const { mutate: mutateCancel } = useMutation({
-  mutation: cancelReservation,
-  onSuccess() {
-    toast.success("Reservación cancelada correctamente");
-    queryCache.invalidateQueries({ key: ["getAllReservations"] });
-  },
-  onError(error) {
-    toast.error("Error al cancelar la reservación", {
-      description: error.message,
-    });
-  },
-});
-
-const { mutate: mutatePay } = useMutation({
-  mutation: payReservation,
-  onSuccess() {
-    toast.success("Reservación marcada como pagada");
-    queryCache.invalidateQueries({ key: ["getAllReservations"] });
-  },
-  onError(error) {
-    toast.error("Error al marcar como pagada", { description: error.message });
-  },
-});
+function formatGTQ(v: number | string | null | undefined) {
+  if (v === null || v === undefined) return '—'
+  const n = Number(v)
+  if (Number.isNaN(n)) return '—'
+  try {
+    return new Intl.NumberFormat('es-GT', { style: 'currency', currency: 'GTQ', minimumFractionDigits: 2 }).format(n)
+  } catch {
+    return `Q.${n.toFixed(2)}`
+  }
+}
 </script>

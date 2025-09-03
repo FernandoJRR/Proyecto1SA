@@ -34,7 +34,7 @@
       <!-- Responsive Grid for many cards -->
       <div
         v-if="filteredMenus.length"
-        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4"
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
       >
         <template v-for="menu in filteredMenus" :key="menu.route">
           <MenuShortcutCard :menu="menu" />
@@ -70,9 +70,9 @@ const menus = reactive([
     route: "/admin",
   },
   {
-    title: "Reportes",
-    description: "Generación de Repotes",
-    route: "/reportes",
+    title: "Ordenes",
+    description: "Administracion de Ordenes",
+    route: "/ordenes",
   },
   {
     title: "Reservaciones",
@@ -83,7 +83,12 @@ const menus = reactive([
     title: "Pagos",
     description: "Administracion de Facturas",
     route: "/facturacion",
-  }
+  },
+  {
+    title: "Reportes",
+    description: "Generación de Repotes",
+    route: "/reportes",
+  },
 ]);
 
 const filteredMenus = computed(() => {
