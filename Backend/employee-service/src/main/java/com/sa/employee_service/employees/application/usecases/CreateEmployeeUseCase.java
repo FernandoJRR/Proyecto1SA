@@ -1,5 +1,6 @@
 package com.sa.employee_service.employees.application.usecases;
 
+import com.sa.shared.exceptions.InvalidParameterException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -11,6 +12,8 @@ import com.sa.application.annotations.UseCase;
 import com.sa.employee_service.employees.application.dtos.CreateEmployeeDTO;
 import com.sa.employee_service.employees.application.inputports.CreateEmployeeInputPort;
 import com.sa.employee_service.employees.application.outputports.CreateEmployeeOutputPort;
+import com.sa.employee_service.employees.application.outputports.ExistsHotelByIdOutputPort;
+import com.sa.employee_service.employees.application.outputports.ExistsRestaurantByIdOutputPort;
 import com.sa.employee_service.employees.application.outputports.FindEmployeeTypeByIdOutputPort;
 import com.sa.employee_service.employees.domain.Employee;
 import com.sa.employee_service.employees.domain.EmployeeType;
@@ -30,12 +33,33 @@ public class CreateEmployeeUseCase implements CreateEmployeeInputPort {
     private final CreateEmployeeOutputPort createEmployeeOutputPort;
     private final FindEmployeeTypeByIdOutputPort findEmployeeTypeByIdOutputPort;
     private final CreateUserService createUserService;
+    private final ExistsHotelByIdOutputPort existsHotelByIdOutputPort;
+    private final ExistsRestaurantByIdOutputPort existsRestaurantByIdOutputPort;
 
     @Transactional
-    public Employee handle(@Valid CreateEmployeeDTO createEmployeeDTO) throws DuplicatedEntryException, NotFoundException {
+    public Employee handle(@Valid CreateEmployeeDTO createEmployeeDTO) throws DuplicatedEntryException, NotFoundException, InvalidParameterException {
         Optional<EmployeeType> foundEmployeeType = findEmployeeTypeByIdOutputPort.findEmployeeTypeById(UUID.fromString(createEmployeeDTO.getEmployeeTypeId().getId()));
         if (foundEmployeeType.isEmpty()) {
             throw new NotFoundException("El tipo de empleado no fue encontrado");
+        }
+
+        //TODO: validation by cui
+
+        //Establishment validation
+        if (createEmployeeDTO.getEstablishmentId() != null) {
+            if (createEmployeeDTO.getEstablishmentType() == null) {
+                throw new InvalidParameterException("Si un ID de establecimiento es ingresado, debe de existir su tipo tambien");
+            }
+
+            if (createEmployeeDTO.getEstablishmentType() == "HOTEL") {
+                if (!existsHotelByIdOutputPort.existsById(createEmployeeDTO.getEstablishmentId().toString())) {
+                    throw new NotFoundException("El hotel buscado no existe");
+                }
+            } else if (createEmployeeDTO.getEstablishmentType() == "RESTAURANT") {
+                if (!existsRestaurantByIdOutputPort.existsById(createEmployeeDTO.getEstablishmentId().toString())) {
+                    throw new NotFoundException("El restaurante buscado no existe");
+                }
+            }
         }
 
         User createdUser = createUserService.createUser(createEmployeeDTO.getCreateUserDTO());
@@ -47,7 +71,8 @@ public class CreateEmployeeUseCase implements CreateEmployeeInputPort {
                 createEmployeeDTO.getSalary(),
                 foundEmployeeType.get(),
                 createEmployeeDTO.getHiredAt(),
-                createEmployeeDTO.getEstablishmentId()
+                createEmployeeDTO.getEstablishmentId(),
+                createEmployeeDTO.getEstablishmentType()
         );
         return createEmployeeOutputPort.createEmployee(createdUser.getId().toString(), emp);
     }

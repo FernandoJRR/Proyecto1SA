@@ -1,0 +1,7 @@
+@import "tailwindcss";
+@import 'primeicons/primeicons.css';
+
+@theme {
+  --color-main-green: #244e3d;
+  --color-main-lotus: #f4efdc;
+}

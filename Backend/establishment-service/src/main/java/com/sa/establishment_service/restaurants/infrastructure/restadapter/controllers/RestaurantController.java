@@ -23,6 +23,10 @@ import com.sa.establishment_service.restaurants.application.inputports.CreateDis
 import com.sa.establishment_service.restaurants.application.inputports.CreateRestaurantInputPort;
 import com.sa.establishment_service.restaurants.application.inputports.ExistDishesRestaurantInputPort;
 import com.sa.establishment_service.restaurants.application.inputports.ExistsRestaurantByIdInputPort;
+import com.sa.establishment_service.restaurants.application.inputports.FindAllRestaurantsInputPort;
+import com.sa.establishment_service.restaurants.application.inputports.FindDishesByRestaurantInputPort;
+import com.sa.establishment_service.restaurants.application.inputports.FindRestaurantByIdInputPort;
+import com.sa.establishment_service.restaurants.application.inputports.FindRestaurantsByHotelInputPort;
 import com.sa.establishment_service.restaurants.domain.Dish;
 import com.sa.establishment_service.restaurants.domain.Restaurant;
 import com.sa.establishment_service.restaurants.infrastructure.restadapter.dtos.CreateDishRequest;
@@ -38,6 +42,7 @@ import com.sa.shared.exceptions.DuplicatedEntryException;
 import com.sa.shared.exceptions.NotFoundException;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -56,6 +61,10 @@ public class RestaurantController {
     private final ExistsRestaurantByIdInputPort existsRestaurantByIdInputPort;
     private final ExistDishesRestaurantInputPort existDishesRestaurantInputPort;
     private final CreateDishInputPort createDishInputPort;
+    private final FindAllRestaurantsInputPort findAllRestaurantsInputPort;
+    private final FindRestaurantByIdInputPort findRestaurantByIdInputPort;
+    private final FindRestaurantsByHotelInputPort findRestaurantsByHotelInputPort;
+    private final FindDishesByRestaurantInputPort findDishesByRestaurantInputPort;
 
     @Operation(summary = "Crear un nuevo restaurante", description = "Este endpoint permite la creación de un nuevo restaurante en el sistema.")
     @ApiResponses(value = {
@@ -78,6 +87,68 @@ public class RestaurantController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @Operation(
+    summary = "Obtener todos los restaurantes",
+    description = "Obtener una lista de todos los restaurantes registrados."
+    )
+    @ApiResponses({
+        @ApiResponse(
+            responseCode = "200",
+            description = "Lista de restaurantes",
+            content = @Content(
+                mediaType = "application/json",
+                array = @ArraySchema(
+                    schema = @Schema(implementation = RestaurantResponse.class)
+                )
+            )
+        ),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    @GetMapping({"","/"})
+    public ResponseEntity<List<RestaurantResponse>> getHotels() {
+        List<Restaurant> result = findAllRestaurantsInputPort.handle();
+
+        List<RestaurantResponse> response = restaurantRestMapper.toResponse(result);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+
+    @Operation(summary = "Obtener un restaurante", description = "Este endpoint permite obtener un restaurante")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Restaurante obtenido exitosamente"),
+            @ApiResponse(responseCode = "404", description = "El restaurante no fue encontrado", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    @GetMapping("/{restaurantId}")
+    public ResponseEntity<RestaurantResponse> getRestaurant(
+            @PathVariable("restaurantId") String restaurantId)
+            throws NotFoundException {
+
+        Restaurant result = findRestaurantByIdInputPort.handle(restaurantId);
+
+        RestaurantResponse response = restaurantRestMapper.toResponse(result);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @Operation(summary = "Obtener los restaurantes en un hotel", description = "Este endpoint permite obtener los restaurantes dentro de un hotel")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Restaurantes obtenido exitosamente"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    @GetMapping("/by-hotel/{hotelId}")
+    public ResponseEntity<List<RestaurantResponse>> getRestaurantByHotel(
+            @PathVariable("hotelId") String hotelId)
+            throws NotFoundException {
+
+        List<Restaurant> result = findRestaurantsByHotelInputPort.handle(hotelId);
+
+        List<RestaurantResponse> response = restaurantRestMapper.toResponse(result);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
     @Operation(summary = "Detecta si un restaurante existe", description = "Este endpoint permite detectar si un restaurante existe por ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Detectado exitosamente"),
@@ -92,6 +163,24 @@ public class RestaurantController {
         existsRestaurantByIdInputPort.handle(restaurantId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Crear un nuevo platillo", description = "Este endpoint permite la creación de un nuevo platillo en el sistema.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Platillo creado exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DishResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Solicitud inválida, usualmente por error en la validacion de parametros.", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    @GetMapping("/{restaurantId}/dishes")
+    public ResponseEntity<List<DishResponse>> getDishesRestaurant(
+            @PathVariable("restaurantId") String restaurantId)
+            throws NotFoundException {
+
+        List<Dish> result = findDishesByRestaurantInputPort.handle(restaurantId);
+
+        List<DishResponse> response = dishRestMapper.toResponse(result);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @Operation(summary = "Crear un nuevo platillo", description = "Este endpoint permite la creación de un nuevo platillo en el sistema.")

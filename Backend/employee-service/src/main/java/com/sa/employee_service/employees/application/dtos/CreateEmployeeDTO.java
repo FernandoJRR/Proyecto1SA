@@ -52,5 +52,9 @@ public class CreateEmployeeDTO {
     private UUID establishmentId;
 
     @Valid
+    @Pattern(regexp = "HOTEL|RESTAURANT", message = "El tipo de establecimiento no existe")
+    private String establishmentType;
+
+    @Valid
     private CreateUserDTO createUserDTO;
 }

@@ -1,6 +1,8 @@
 package com.sa.employee_service.employees.application.usecases;
 import com.sa.employee_service.employees.application.usecases.CreateEmployeeUseCase;
 import com.sa.employee_service.employees.application.outputports.CreateEmployeeOutputPort;
+import com.sa.employee_service.employees.application.outputports.ExistsHotelByIdOutputPort;
+import com.sa.employee_service.employees.application.outputports.ExistsRestaurantByIdOutputPort;
 import com.sa.employee_service.employees.application.outputports.FindEmployeeTypeByIdOutputPort;
 import com.sa.employee_service.users.application.inputports.CreateUserInputPort;
 
@@ -53,6 +55,7 @@ import com.sa.employee_service.users.infrastructure.repositoryadapter.models.Use
 import com.sa.employee_service.users.infrastructure.repositoryadapter.repositories.UserRepository;
 import com.sa.shared.dtos.IdRequestDTO;
 import com.sa.shared.exceptions.DuplicatedEntryException;
+import com.sa.shared.exceptions.InvalidParameterException;
 import com.sa.shared.exceptions.InvalidPeriodException;
 import com.sa.shared.exceptions.NotFoundException;
 
@@ -77,6 +80,10 @@ public class EmployeesServiceTest {
         private CreateEmployeeOutputPort createEmployeeOutputPort;
         @Mock
         private CreateUserService createUserService;
+        @Mock
+        private ExistsHotelByIdOutputPort existsHotelByIdOutputPort;
+        @Mock
+        private ExistsRestaurantByIdOutputPort existsRestaurantByIdOutputPort;
 
         @InjectMocks
         private EmployeeService employeeService;
@@ -206,12 +213,14 @@ public class EmployeesServiceTest {
                 createEmployeeUseCase = new CreateEmployeeUseCase(
                     createEmployeeOutputPort,
                     findEmployeeTypeByIdOutputPort,
-                    createUserService
+                    createUserService,
+                    existsHotelByIdOutputPort,
+                    existsRestaurantByIdOutputPort
                 );
         }
 
         @Test
-        public void shouldInsertEmployee() throws DuplicatedEntryException, NotFoundException {
+        public void shouldInsertEmployee() throws DuplicatedEntryException, NotFoundException, InvalidParameterException {
             // Arrange
             UUID typeId = UUID.fromString(employeeType.getId());
 
@@ -238,7 +247,9 @@ public class EmployeesServiceTest {
             CreateEmployeeUseCase useCase = new CreateEmployeeUseCase(
                 createEmployeeOutputPort,
                 findEmployeeTypeByIdOutputPort,
-                createUserService
+                createUserService,
+                existsHotelByIdOutputPort,
+                existsRestaurantByIdOutputPort
             );
 
             // Act

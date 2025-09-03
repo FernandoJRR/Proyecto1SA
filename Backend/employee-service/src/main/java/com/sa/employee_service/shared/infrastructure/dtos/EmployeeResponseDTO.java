@@ -18,12 +18,10 @@ public class EmployeeResponseDTO {
 
     BigDecimal salary;
 
-    BigDecimal igssPercentage;
-
-    BigDecimal irtraPercentage;
-
     LocalDate desactivatedAt;
 
     EmployeeTypeResponseDTO employeeType;
 
+    String establishmentId;
+    String establishmentType;
 }

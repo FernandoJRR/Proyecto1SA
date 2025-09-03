@@ -17,4 +17,6 @@ public interface DishRepository extends JpaRepository<DishEntity, String> {
       """)
     List<DishEntity> findExistant(@Param("restaurantId") String restaurantId,
        @Param("ids") List<String> ids);
+
+    List<DishEntity> findAllByRestaurant_Id(String restaurantId);
 }

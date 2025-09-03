@@ -24,6 +24,8 @@ public class CreateEmployeeRequest extends EmployeeRequestDTO {
 
     private String cui;
 
+    private String establishmentType;
+
     private IdRequestDTO employeeTypeId;
 
     private LocalDate hiredAt;

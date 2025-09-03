@@ -45,6 +45,7 @@ import com.sa.employee_service.employees.infrastructure.restadapter.mappers.Hist
 import com.sa.employee_service.users.infrastructure.repositoryadapter.models.UserEntity;
 import com.sa.employee_service.users.infrastructure.restadapter.mappers.UserMapper;
 import com.sa.shared.exceptions.DuplicatedEntryException;
+import com.sa.shared.exceptions.InvalidParameterException;
 import com.sa.shared.exceptions.InvalidPeriodException;
 import com.sa.shared.exceptions.NotFoundException;
 import com.sa.employee_service.shared.infrastructure.dtos.EmployeeResponseDTO;
@@ -86,7 +87,7 @@ public class EmployeesController {
     @PreAuthorize("hasAuthority('CREATE_EMPLOYEE')")
     public ResponseEntity<EmployeeResponseDTO> createEmployee(
             @RequestBody CreateEmployeeRequest request)
-            throws DuplicatedEntryException, NotFoundException {
+            throws DuplicatedEntryException, NotFoundException, InvalidParameterException {
 
         CreateEmployeeDTO createEmployeeDTO = employeeRestMapper.toDTO(request);
 

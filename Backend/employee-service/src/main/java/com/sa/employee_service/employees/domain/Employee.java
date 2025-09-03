@@ -26,6 +26,7 @@ public class Employee extends Auditor {
     private EmployeeType employeeType;
 
     private UUID establishmentId;
+    private EstablishmentTypeEnum establishmentType;
 
     /**
      * Para la creacion de nuevos empleados
@@ -43,7 +44,7 @@ public class Employee extends Auditor {
     }
 
     public Employee(UUID id, String cui, String firstName, String lastName, BigDecimal salary,
-            EmployeeType employeeType, LocalDate hiredAt, UUID establishmentId) {
+            EmployeeType employeeType, LocalDate hiredAt, UUID establishmentId, EstablishmentTypeEnum establishmentType) {
         super(id);
         this.cui = cui;
         this.firstName = firstName;
@@ -52,6 +53,7 @@ public class Employee extends Auditor {
         this.employeeType = employeeType;
         this.hiredAt = hiredAt;
         this.establishmentId = establishmentId;
+        this.establishmentType = establishmentType;
     }
 
     public Employee(String cui, String firstName, String lastName, BigDecimal salary,
@@ -80,8 +82,13 @@ public class Employee extends Auditor {
             java.math.BigDecimal initialSalary,
             EmployeeType type,
             LocalDate hiredAt,
-            UUID establishmentId
+            UUID establishmentId,
+            String establishmentType
     ) {
+        EstablishmentTypeEnum chosenEstablishmentType = null;
+        if (establishmentId != null) {
+            chosenEstablishmentType = EstablishmentTypeEnum.valueOf(establishmentType);
+        }
         Employee e = new Employee(
             UUID.randomUUID(),
             cui,
@@ -90,7 +97,8 @@ public class Employee extends Auditor {
             initialSalary,
             type,
             hiredAt,
-            establishmentId
+            establishmentId,
+            chosenEstablishmentType
         );
         return e;
     }

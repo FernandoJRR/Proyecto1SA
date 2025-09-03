@@ -22,10 +22,12 @@ import com.sa.establishment_service.hotels.application.dtos.CreateHotelDTO;
 import com.sa.establishment_service.hotels.application.dtos.CreateRoomDTO;
 import com.sa.establishment_service.hotels.application.inputports.CreateHotelInputPort;
 import com.sa.establishment_service.hotels.application.inputports.CreateRoomInputPort;
+import com.sa.establishment_service.hotels.application.inputports.ExistsHotelByIdInputPort;
 import com.sa.establishment_service.hotels.application.inputports.ExistsRoomByIdInputPort;
 import com.sa.establishment_service.hotels.application.inputports.ExistsRoomInHotelByIdInputPort;
 import com.sa.establishment_service.hotels.application.inputports.FindAllHotelsInputPort;
 import com.sa.establishment_service.hotels.application.inputports.FindAllRoomsByHotelIdInputPort;
+import com.sa.establishment_service.hotels.application.inputports.FindHotelByIdInputPort;
 import com.sa.establishment_service.hotels.application.inputports.FindRoomByHotelAndIdInputPort;
 import com.sa.establishment_service.hotels.domain.Hotel;
 import com.sa.establishment_service.hotels.domain.Room;
@@ -58,6 +60,8 @@ public class HotelController {
     private final FindAllRoomsByHotelIdInputPort findAllRoomsByHotelIdInputPort;
     private final ExistsRoomInHotelByIdInputPort existsRoomInHotelByIdInputPort;
     private final FindRoomByHotelAndIdInputPort findRoomByHotelAndIdInputPort;
+    private final ExistsHotelByIdInputPort existsHotelByIdInputPort;
+    private final FindHotelByIdInputPort findHotelByIdInputPort;
 
     private final HotelRestMapper hotelRestMapper;
     private final RoomRestMapper roomRestMapper;
@@ -129,6 +133,41 @@ public class HotelController {
 
         RoomResponse response = roomRestMapper.toResponse(result);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "Obtener un hotel", description = "Este endpoint permite obtener un hotel del sistema")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Hotel obtenido exitosamente"),
+            @ApiResponse(responseCode = "404", description = "El hotel no fue encontrado", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    @GetMapping("/{hotelId}")
+    public ResponseEntity<HotelResponse> getHotel(
+            @PathVariable("hotelId") String hotelId)
+            throws NotFoundException {
+
+        Hotel foundHotel = findHotelByIdInputPort.handle(hotelId);
+
+        HotelResponse response = hotelRestMapper.toResponse(foundHotel);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+}
+
+
+    @Operation(summary = "Detecta si un hotel existe", description = "Este endpoint permite detectar si un hotel existe por ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Detectado exitosamente"),
+            @ApiResponse(responseCode = "404", description = "El hotel no fue encontrado", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    @GetMapping("/{hotelId}/exists")
+    public ResponseEntity<Void> existsHotel(
+            @PathVariable("hotelId") String hotelId)
+            throws NotFoundException {
+
+        existsHotelByIdInputPort.handle(hotelId);
+
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Detecta si una habitacion existe por su ID", description = "Este endpoint permite conocer si una habitacion existe.")

@@ -10,12 +10,15 @@ import java.util.UUID;
 
 import org.hibernate.annotations.DynamicUpdate;
 
+import com.sa.employee_service.employees.domain.EstablishmentTypeEnum;
 import com.sa.employee_service.users.infrastructure.repositoryadapter.models.UserEntity;
 import com.sa.shared.models.AuditorEntity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
@@ -49,6 +52,10 @@ public class EmployeeEntity extends AuditorEntity {
 
     @Column(nullable = true, name = "establishment_id")
     private UUID establishmentId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = true, name = "establishment_type")
+    private EstablishmentTypeEnum establishmentType;
 
     @ManyToOne
     private EmployeeTypeEntity employeeType;

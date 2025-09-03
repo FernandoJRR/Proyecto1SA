@@ -1,0 +1,100 @@
+pipeline {
+    agent any
+
+    environment {
+        NVM_DIR = "/var/lib/jenkins/.nvm"
+        DEPLOY_FRONTEND_DIR = "/var/www/project2AyD2"
+        NODE_VERSION = "22.14.0"
+        PM2_APP_NAME = "front-p2ayd2"
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                git branch: 'dev', url: 'https://github.com/FernandoJRR/Proyecto2AyD2-Front.git'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                script {
+                    def loadNvmAndNode = """
+                        export NVM_DIR="$NVM_DIR"
+                        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+                        nvm use $NODE_VERSION
+                    """
+
+                    def changes = sh(script: 'git --no-pager diff --name-only HEAD~1 HEAD || true | grep package.json || true', returnStdout: true).trim()
+                    def exists_node_modules = sh(script: 'test -d node_modules', returnStatus: true) == 0
+
+                    if (changes || !exists_node_modules) {
+                        echo "🔧 Instalando dependencias..."
+                        sh """
+                            $loadNvmAndNode
+                            rm -rf node_modules package-lock.json
+                            npm install
+                        """
+                    } else {
+                        echo "✅ No se detectaron cambios en package.json."
+                    }
+                }
+            }
+        }
+
+        stage('Build Frontend') {
+            steps {
+                script {
+                    def loadNvmAndNode = """
+                        export NVM_DIR="$NVM_DIR"
+                        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+                        nvm use $NODE_VERSION
+                    """
+
+                    sh """
+                        $loadNvmAndNode
+                        npm run build
+                    """
+                }
+            }
+        }
+
+        stage('Deploy Frontend') {
+            steps {
+                script {
+                    def loadNvmAndNode = """
+                        export NVM_DIR="$NVM_DIR"
+                        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+                        nvm use $NODE_VERSION
+                    """
+
+                    sh """
+                        $loadNvmAndNode
+
+                        echo "🛑 Deteniendo PM2 $PM2_APP_NAME si existe..."
+                        pm2 stop $PM2_APP_NAME || true
+
+                        echo "🧹 Limpiando $DEPLOY_FRONTEND_DIR ..."
+                        rm -rf $DEPLOY_FRONTEND_DIR/*
+
+                        echo "🚚 Copiando build..."
+                        rsync -av --delete .output/ $DEPLOY_FRONTEND_DIR/
+
+                        echo "✅ Reiniciando PM2..."
+                        pm2 start $PM2_APP_NAME || pm2 restart $PM2_APP_NAME
+                        pm2 logs $PM2_APP_NAME --lines 20 --nostream
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "🎉 Pipeline completado con éxito."
+        }
+        failure {
+            echo "❌ Falló el pipeline."
+        }
+    }
+}
