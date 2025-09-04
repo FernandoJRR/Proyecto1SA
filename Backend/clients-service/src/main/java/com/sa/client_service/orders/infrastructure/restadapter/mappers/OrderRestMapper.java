@@ -1,5 +1,7 @@
 package com.sa.client_service.orders.infrastructure.restadapter.mappers;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -20,5 +22,6 @@ public interface OrderRestMapper {
 
     @Mapping(target = "clientCui", source = "client.cui")
     public OrderResponse toResponse(Order order);
+    public List<OrderResponse> toResponse(List<Order> order);
     public OrderItemResponse toResponse(OrderItem orderItem);
 }

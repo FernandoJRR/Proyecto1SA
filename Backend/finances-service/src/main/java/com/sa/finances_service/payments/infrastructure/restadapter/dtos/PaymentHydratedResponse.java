@@ -3,14 +3,18 @@ package com.sa.finances_service.payments.infrastructure.restadapter.dtos;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+import com.sa.finances_service.payments.application.dtos.HotelDTO;
+import com.sa.finances_service.payments.application.dtos.RestaurantDTO;
 import com.sa.finances_service.shared.infrastructure.dtos.PromotionAppliedResponse;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
 @NoArgsConstructor
-public class PaymentResponse {
+@AllArgsConstructor
+@Data
+public class PaymentHydratedResponse {
     private String id;
     private UUID establishmentId;
     private UUID clientId;
@@ -27,4 +31,7 @@ public class PaymentResponse {
     private String cardNumber;
 
     private PromotionAppliedResponse promotionApplied;
+
+    private HotelDTO hotel;
+    private RestaurantDTO restaurant;
 }

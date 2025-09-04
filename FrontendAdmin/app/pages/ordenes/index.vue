@@ -4,13 +4,13 @@
     <header class="max-w-7xl mx-auto mb-6" role="banner">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div class="flex items-center gap-3">
-          <RouterLink to="/admin">
+          <RouterLink to="/">
             <Button icon="pi pi-arrow-left" label="Volver" size="small" aria-label="Volver a Administración" />
           </RouterLink>
-          <h1 class="text-2xl font-extrabold tracking-tight text-slate-900">Restaurantes</h1>
+          <h1 class="text-2xl font-extrabold tracking-tight text-slate-900">Órdenes</h1>
         </div>
-        <RouterLink to="/admin/restaurantes/crear">
-          <Button icon="pi pi-plus" label="Nuevo Restaurante" rounded raised />
+        <RouterLink to="/ordenes/crear">
+          <Button icon="pi pi-plus" label="Nueva orden" rounded raised />
         </RouterLink>
       </div>
     </header>
@@ -20,10 +20,10 @@
       <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow">
         <DataTable
           :value="state.data as any[]"
-          tableStyle="min-width: 56rem"
+          tableStyle="min-width: 64rem"
           stripedRows
           rowHover
-          :loading="asyncStatus == 'loading'"
+          :loading="asyncStatus === 'loading'"
           :paginator="true"
           :rows="10"
           :rowsPerPageOptions="[10,20,50]"
@@ -34,39 +34,47 @@
             </div>
           </template>
 
-          <Column header="Nombre">
-            <template #body="slotProps">
-              {{ slotProps.data.name }}
+          <Column header="CUI">
+            <template #body="{ data }">{{ data.clientCui || '—' }}</template>
+          </Column>
+
+          <Column header="Restaurante">
+            <template #body="{ data }">
+              <span class="font-mono text-xs">{{ data.restaurant.name || '—' }}</span>
             </template>
           </Column>
 
-          <Column header="En Hotel">
-            <template #body="slotProps">
-              <Tag>{{ slotProps.data.hotelId ? 'Si' : 'No' }}</Tag>
+          <Column header="Ítems">
+            <template #body="{ data }">
+              <span class="text-sm text-slate-700">{{ itemsSummary(data.items) }}</span>
             </template>
           </Column>
 
-          <Column header="Dirección">
-            <template #body="slotProps">
-              <span class="truncate max-w-[18rem] inline-block align-middle" :title="slotProps.data.address">{{ slotProps.data.address || '—' }}</span>
-              <Tag v-if="slotProps.data.desactivatedAt" class="ml-2" value="Desactivado" severity="danger" />
+          <Column header="Subtotal">
+            <template #body="{ data }">{{ formatGTQ(data.subtotal) }}</template>
+          </Column>
+
+          <Column header="Promo">
+            <template #body="{ data }">
+              <template v-if="data.promotionApplied">
+                <Tag severity="info" class="text-xs text-center px-2 py-0.5 truncate max-w-[10rem]">
+                - Q.{{ data.promotionApplied.amountOff }}<br/>
+                {{ data.promotionApplied.percentOff }}%
+                </Tag>
+              </template>
+              <template v-else><Tag :value="'No'" severity="contrast"/></template>
             </template>
+          </Column>
+
+          <Column header="Total">
+            <template #body="{ data }">{{ formatGTQ(data.total) }}</template>
           </Column>
 
           <Column header="Acciones">
-            <template #body="slotProps">
+            <template #body="{ data }">
               <div class="flex flex-wrap items-center gap-1">
-                <RouterLink :to="`/admin/restaurantes/${slotProps.data.id}`">
-                  <Button label="Ver" severity="info" variant="text" rounded aria-label="Ver restaurante" />
-                </RouterLink>
-                <RouterLink :to="`/admin/restaurantes/editar-${slotProps.data.id}`">
-                  <Button label="Editar" severity="warn" variant="text" rounded aria-label="Editar restaurante" />
-                </RouterLink>
-                <RouterLink v-if="!slotProps.data.desactivatedAt" :to="`/admin/restaurantes/deshabilitar-${slotProps.data.id}`">
-                  <Button label="Deshabilitar" severity="danger" variant="text" rounded aria-label="Deshabilitar restaurante" />
-                </RouterLink>
-                <RouterLink v-else :to="`/admin/restaurantes/reactivar-${slotProps.data.id}`">
-                  <Button label="Reactivar" severity="help" variant="text" rounded aria-label="Reactivar restaurante" />
+                <RouterLink :to="`/ordenes/${data.id}`">
+                  <Button label="Ver" severity="info" variant="text" rounded aria-label="Ver orden" />
                 </RouterLink>
               </div>
             </template>
@@ -75,18 +83,18 @@
           <template #empty>
             <div class="py-10 text-center text-slate-600">
               <i class="pi pi-inbox text-3xl mb-2 text-slate-400" aria-hidden="true"></i>
-              <div>No hay restaurantes registrados.</div>
+              <div>No hay órdenes registradas.</div>
             </div>
           </template>
 
           <template #loading>
             <div class="py-10 text-center text-slate-600">
-              Cargando restaurantes…
+              Cargando órdenes…
             </div>
           </template>
 
           <template #footer>
-            Hay en total {{ state.data ? (state.data as any[]).length : 0 }} restaurantes.
+            Hay en total {{ state.data ? (state.data as any[]).length : 0 }} órdenes.
           </template>
         </DataTable>
       </div>
@@ -94,12 +102,38 @@
   </div>
 </template>
 <script setup lang="ts">
-import { Tag } from 'primevue';
+import { Tag } from 'primevue'
 import { RouterLink } from 'vue-router'
-import { getAllRestaurants } from '~/lib/api/establishments/restaurants'
+import { getAllOrders } from '~/lib/api/orders/orders'
 
 const { state, asyncStatus } = useCustomQuery({
-  key: ['restaurantes'],
-  query: () => getAllRestaurants(),
+  key: ['ordenes'],
+  query: () => getAllOrders(),
 })
+
+function formatGTQ(v: number | string | null | undefined) {
+  if (v === null || v === undefined) return '—'
+  const n = Number(v)
+  if (Number.isNaN(n)) return '—'
+  try {
+    return new Intl.NumberFormat('es-GT', { style: 'currency', currency: 'GTQ', minimumFractionDigits: 2 }).format(n)
+  } catch {
+    return `Q.${n.toFixed(2)}`
+  }
+}
+
+function promoLabel(p: any) {
+  if (!p) return ''
+  const parts: string[] = []
+  if (p.name) parts.push(p.name)
+  if (p.percentOff) parts.push(`${p.percentOff}% off`)
+  if (p.amountOff) parts.push(`- ${formatGTQ(p.amountOff)}`)
+  return parts.join(' · ')
+}
+
+function itemsSummary(items: any[]) {
+  if (!Array.isArray(items) || items.length === 0) return '—'
+  const totalQty = items.reduce((acc, it) => acc + Number(it.quantity || 0), 0)
+  return `${items.length} ítem(s) · ${totalQty} uds.`
+}
 </script>
