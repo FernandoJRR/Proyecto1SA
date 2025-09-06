@@ -17,6 +17,7 @@ import com.sa.client_service.orders.application.dtos.CreateOrderDTO;
 import com.sa.client_service.orders.application.inputports.CreateOrderInputPort;
 import com.sa.client_service.orders.application.inputports.FindAllOrdersInputPort;
 import com.sa.client_service.orders.application.inputports.FindOrderByIdInputPort;
+import com.sa.client_service.orders.application.inputports.MostPopularDishesInputPort;
 import com.sa.client_service.orders.domain.Order;
 import com.sa.client_service.orders.infrastructure.restadapter.dtos.CreateOrderRequest;
 import com.sa.client_service.orders.infrastructure.restadapter.dtos.OrderHydratedResponse;
@@ -42,6 +43,7 @@ public class OrderController {
     private final CreateOrderInputPort createOrderInputPort;
     private final FindOrderByIdInputPort findOrderByIdInputPort;
     private final FindAllOrdersInputPort findAllOrdersInputPort;
+    private final MostPopularDishesInputPort mostPopularDishesInputPort;
     private final OrderRestMapper orderRestMapper;
     private final OrderHydrationAssembler orderHydrationAssembler;
 
@@ -98,5 +100,21 @@ public class OrderController {
         List<OrderHydratedResponse> response = orderHydrationAssembler.toResponseList(result);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "Obtener los platillos mas populares de un restaurante", description = "Obtiene basado en las ordenes, los platillos mas populares de un restaurante.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Platillos obtenidos correctamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = OrderResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Parámetros inválidos", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content)
+    })
+    @GetMapping("/by-restaurant/{restaurantId}/most-popular-dishes")
+    public ResponseEntity<List<UUID>> getMostPopularDishes(
+            @PathVariable("restaurantId") UUID restaurantId)
+            throws NotFoundException {
+
+        List<UUID> result = mostPopularDishesInputPort.handle(restaurantId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 }

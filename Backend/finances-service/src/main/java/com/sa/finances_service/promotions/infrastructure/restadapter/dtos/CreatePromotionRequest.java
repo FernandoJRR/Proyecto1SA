@@ -19,4 +19,12 @@ public class CreatePromotionRequest {
     private LocalDate endDate;
 
     private String promotionType;
+
+    private String establishmentId;
+
+    private String establishmentType;
+
+    private String name;
+
+    private Integer topCount;
 }

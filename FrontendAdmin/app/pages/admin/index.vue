@@ -79,6 +79,11 @@ const menus = reactive([
         description: 'Restaurantes y Platillos del Sistema',
         route: '/admin/restaurantes',
     },
+    {
+        title: 'Promociones',
+        description: 'Promociones y Descuentos del Sistema',
+        route: '/admin/promociones',
+    },
 ])
 
 const filteredMenus = computed(() => {

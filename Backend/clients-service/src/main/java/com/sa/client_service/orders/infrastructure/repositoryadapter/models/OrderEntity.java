@@ -1,6 +1,7 @@
 package com.sa.client_service.orders.infrastructure.repositoryadapter.models;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -44,6 +45,9 @@ public class OrderEntity extends AuditorEntity {
 
     @Column(name = "subtotal", nullable = false)
     private BigDecimal subtotal;
+
+    @Column(name = "orderedAt", nullable = false)
+    private LocalDate orderedAt;
 
     @Embedded
     private PromotionAppliedEntity promotionApplied;

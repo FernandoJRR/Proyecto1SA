@@ -19,17 +19,28 @@ public class Promotion extends Auditor {
     private BigDecimal percentage;
     private LocalDate startDate;
     private LocalDate endDate;
+    private String name;
+    private UUID establishmentId;
+    private EstablishmentTypeEnum establishmentType;
+    private Integer topCount;
     private PromotionType promotionType;
 
-    public Promotion(UUID id, BigDecimal percentage, LocalDate startDate, LocalDate endDate, PromotionType promotionType){
+    public Promotion(UUID id, BigDecimal percentage, LocalDate startDate, LocalDate endDate,
+            String name, UUID establishmentId, EstablishmentTypeEnum establishmentType, Integer topCount, PromotionType promotionType) {
         super(id);
         this.percentage = percentage;
         this.startDate = startDate;
         this.endDate = endDate;
         this.promotionType = promotionType;
+        this.name = name;
+        this.establishmentId = establishmentId;
+        this.establishmentType = establishmentType;
+        this.topCount = topCount;
     }
 
-    public static Promotion create(BigDecimal percentage, LocalDate startDate, LocalDate endDate, PromotionType promotionType) {
-        return new Promotion(UUID.randomUUID(), percentage, startDate, endDate, promotionType);
+    public static Promotion create(BigDecimal percentage, LocalDate startDate, LocalDate endDate,
+            String name, UUID establishmentId, EstablishmentTypeEnum establishmentType, Integer topCount, PromotionType promotionType) {
+        return new Promotion(UUID.randomUUID(), percentage, startDate, endDate,
+        name, establishmentId, establishmentType, topCount, promotionType);
     }
 }

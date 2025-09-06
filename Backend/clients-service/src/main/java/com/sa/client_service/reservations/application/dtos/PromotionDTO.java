@@ -16,5 +16,6 @@ public class PromotionDTO {
     private BigDecimal percentage;
     private LocalDate startDate;
     private LocalDate endDate;
+    private String name;
     private PromotionTypeDTO promotionType;
 }

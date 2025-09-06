@@ -19,4 +19,7 @@ public class PromotionResponse {
     private LocalDate startDate;
     private LocalDate endDate;
     private PromotionTypeInfo promotionType;
+    private String name;
+    private UUID establishmentId;
+    private String establishmentType;
 }

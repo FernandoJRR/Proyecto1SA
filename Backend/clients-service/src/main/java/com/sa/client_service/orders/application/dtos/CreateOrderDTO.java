@@ -1,5 +1,6 @@
 package com.sa.client_service.orders.application.dtos;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,6 +21,9 @@ public class CreateOrderDTO {
     private UUID restaurantId;
 
     private UUID promotionId;
+
+    @NotNull(message = "La fecha de la orden es obligatoria")
+    private LocalDate orderedAt;
 
     @Valid
     @NotEmpty(message = "Debe haber al menos un item en la orden")

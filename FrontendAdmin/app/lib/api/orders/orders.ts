@@ -44,7 +44,9 @@ export interface CreateOrderItemRequest {
   export interface CreateOrderPayload {
     clientCui: string;
     restaurantId: string;
+    promotionId?: string;
     createOrderItemRequests: CreateOrderItemRequest[];
+    orderedAt: Date;
   }
 
   export async function createOrder(payload: CreateOrderPayload) {

@@ -89,7 +89,7 @@ public class CreateOrderUseCase implements CreateOrderInputPort {
             domainItems.add(item);
         }
 
-        Order createdOrder = Order.create(foundClient, restaurantId, domainItems, total);
+        Order createdOrder = Order.create(foundClient, restaurantId, domainItems, total, createOrderDTO.getOrderedAt());
 
         String promotionIdPayment = null;
         if (createOrderDTO.getPromotionId() != null) {
@@ -97,7 +97,7 @@ public class CreateOrderUseCase implements CreateOrderInputPort {
                     .findPromotionById(createOrderDTO.getPromotionId().toString())
                     .orElseThrow(() -> new NotFoundException("La promocion ingresada no existe."));
 
-            createdOrder.applyPromotion(promotion.getId().toString(), promotion.getPromotionType().getName(),
+            createdOrder.applyPromotion(promotion.getId().toString(), promotion.getName(),
                     promotion.getPercentage());
 
             promotionIdPayment = createOrderDTO.getPromotionId().toString();

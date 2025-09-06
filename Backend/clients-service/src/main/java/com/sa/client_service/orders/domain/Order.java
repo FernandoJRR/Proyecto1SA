@@ -1,6 +1,7 @@
 package com.sa.client_service.orders.domain;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,13 +25,17 @@ public class Order extends Auditor implements Promotionable {
     private BigDecimal total;
     private BigDecimal subtotal;
 
+    private LocalDate orderedAt;
+
     private PromotionApplied promotionApplied;
 
     public Order(UUID id,
             Client client,
             UUID restaurantId,
             List<OrderItem> items,
-            BigDecimal total) {
+            BigDecimal total,
+            LocalDate orderedAt
+            ) {
 
         super(id);
         this.client = client;
@@ -38,6 +43,7 @@ public class Order extends Auditor implements Promotionable {
         this.items = items;
         this.total = total;
         this.subtotal = total;
+        this.orderedAt = orderedAt;
 
         if (this.items.isEmpty()) {
             throw new IllegalArgumentException("Las ordenes deben tener al menos un platillo.");
@@ -47,8 +53,10 @@ public class Order extends Auditor implements Promotionable {
     public static Order create(Client client,
             UUID restaurantId,
             List<OrderItem> items,
-            BigDecimal total) {
-        return new Order(UUID.randomUUID(), client, restaurantId, items, total);
+            BigDecimal total,
+            LocalDate orderedAt
+            ) {
+        return new Order(UUID.randomUUID(), client, restaurantId, items, total, orderedAt);
     }
 
     public void applyPromotion(String promotionId, String name, BigDecimal percentage) {

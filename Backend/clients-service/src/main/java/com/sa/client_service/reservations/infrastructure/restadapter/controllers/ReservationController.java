@@ -21,6 +21,7 @@ import com.sa.client_service.reservations.application.dtos.FindReservationsDTO;
 import com.sa.client_service.reservations.application.inputports.CreateReservationInputPort;
 import com.sa.client_service.reservations.application.inputports.FindReservationByIdInputPort;
 import com.sa.client_service.reservations.application.inputports.FindReservationsInputPort;
+import com.sa.client_service.reservations.application.inputports.MostPopularRoomsInputPort;
 import com.sa.client_service.reservations.domain.Reservation;
 import com.sa.client_service.reservations.infrastructure.restadapter.dtos.CreateReservationRequest;
 import com.sa.client_service.reservations.infrastructure.restadapter.dtos.ReservationHydratedResponse;
@@ -45,6 +46,7 @@ public class ReservationController {
     private final CreateReservationInputPort createReservationInputPort;
     private final FindReservationsInputPort findReservationsInputPort;
     private final FindReservationByIdInputPort findReservationByIdInputPort;
+    private final MostPopularRoomsInputPort mostPopularRoomsInputPort;
     private final ReservationRestMapper reservationRestMapper;
     private final ReservationHydrationAssembler reservationHydrationAssembler;
 
@@ -115,5 +117,21 @@ public class ReservationController {
         ReservationHydratedResponse response = reservationHydrationAssembler.toResponse(result);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @Operation(summary = "Obtener las habitaciones mas populares de un hotel", description = "Obtiene basado en las reservaciones, las habitaciones mas populares de un hotel.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Habitaciones obtenidas correctamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ReservationResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Parámetros inválidos", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content)
+    })
+    @GetMapping("/by-hotel/{hotelId}/most-popular-rooms")
+    public ResponseEntity<List<UUID>> getMostPopularRooms(
+            @PathVariable("hotelId") UUID hotelId)
+            throws NotFoundException {
+
+        List<UUID> result = mostPopularRoomsInputPort.handle(hotelId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 }

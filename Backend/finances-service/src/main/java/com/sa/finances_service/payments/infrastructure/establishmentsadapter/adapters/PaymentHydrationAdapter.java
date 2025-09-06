@@ -31,7 +31,7 @@ public class PaymentHydrationAdapter implements PaymentHydrationOutputPort {
                 .body(HotelDTO.class);
 
             return foundHotel;
-        } catch (HttpClientErrorException ex) {
+        } catch (Exception ex) {
             return null;
         }
     }
@@ -47,7 +47,7 @@ public class PaymentHydrationAdapter implements PaymentHydrationOutputPort {
                 .body(RestaurantDTO.class);
 
             return foundRestaurant;
-        } catch (HttpClientErrorException ex) {
+        } catch (Exception ex) {
             return null;
         }
     }

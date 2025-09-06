@@ -3,6 +3,7 @@ package com.sa.finances_service.promotions.infrastructure.repositoryadapter.mode
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import com.sa.finances_service.promotions.domain.EstablishmentTypeEnum;
 import com.sa.finances_service.promotions.domain.PromotionType;
 import com.sa.shared.models.AuditorEntity;
 
@@ -33,4 +34,17 @@ public class PromotionEntity extends AuditorEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private PromotionType promotionType;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
+    private String establishmentId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EstablishmentTypeEnum establishmentType;
+
+    @Column(nullable = false)
+    private Integer topCount;
 }
