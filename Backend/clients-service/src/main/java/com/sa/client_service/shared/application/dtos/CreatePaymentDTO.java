@@ -1,6 +1,7 @@
 package com.sa.client_service.shared.application.dtos;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
@@ -26,4 +27,6 @@ public class CreatePaymentDTO {
     private String cardNumber;
 
     private String promotionId;
+
+    private LocalDate paidAt;
 }

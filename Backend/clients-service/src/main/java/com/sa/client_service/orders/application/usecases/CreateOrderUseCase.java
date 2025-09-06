@@ -104,7 +104,7 @@ public class CreateOrderUseCase implements CreateOrderInputPort {
         }
 
         boolean resultPayment = createPaymentOutputPort.createPayment(new CreatePaymentDTO(restaurantId, foundClient.getId(), "ORDER",
-                createdOrder.getId(), "CARD", createdOrder.getSubtotal(), "1234", promotionIdPayment));
+                createdOrder.getId(), "CARD", createdOrder.getSubtotal(), "1234", promotionIdPayment, createOrderDTO.getOrderedAt()));
         if (!resultPayment) {
             throw new InvalidParameterException("Error creando el pago");
         }

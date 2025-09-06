@@ -73,14 +73,14 @@ public class CreateReservationUseCase implements CreateReservationInputPort {
                     .findPromotionById(createReservationDTO.getPromotionId().toString())
                     .orElseThrow(() -> new NotFoundException("La promocion ingresada no existe."));
 
-            createdReservation.applyPromotion(promotion.getId().toString(), promotion.getPromotionType().getName(),
+            createdReservation.applyPromotion(promotion.getId().toString(), promotion.getName(),
                     promotion.getPercentage());
 
             promotionIdPayment = createReservationDTO.getPromotionId().toString();
         }
 
         boolean resultPayment = createPaymentOutputPort.createPayment(new CreatePaymentDTO(createReservationDTO.getHotelId(), foundClient.getId(), "RESERVATION",
-                createdReservation.getId(), "CARD", createdReservation.getSubtotal(), "1234", promotionIdPayment));
+                createdReservation.getId(), "CARD", createdReservation.getSubtotal(), "1234", promotionIdPayment, createReservationDTO.getStartDate()));
 
         if (!resultPayment) {
             throw new InvalidParameterException("Error creando el pago");
