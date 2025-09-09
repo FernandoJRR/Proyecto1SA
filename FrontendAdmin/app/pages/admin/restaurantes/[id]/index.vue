@@ -146,6 +146,58 @@
             </DataTable>
           </div>
         </section>
+
+        <!-- Card: Reseñas del restaurante -->
+        <section class="lg:col-span-2 rounded-xl border border-slate-200 bg-white shadow">
+          <div class="p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-lg font-semibold">Reseñas</h2>
+              <div v-if="averageRating != null" class="flex items-center gap-2">
+                <Tag severity="info" :value="`Promedio: ${averageRating.toFixed(1)} / 5`" />
+              </div>
+            </div>
+            <DataTable
+              :value="reviewsState.data as any[]"
+              tableStyle="min-width: 56rem"
+              stripedRows
+              rowHover
+              :loading="reviewsAsyncStatus == 'loading'"
+              :paginator="true"
+              :rows="10"
+              :rowsPerPageOptions="[10,20,50]"
+            >
+              <Column header="Calificación">
+                <template #body="slotProps">
+                  {{ Number(slotProps.data.rating)?.toFixed(1) ?? '—' }}
+                </template>
+              </Column>
+              <Column header="Comentario">
+                <template #body="slotProps">
+                  <span class="truncate max-w-[28rem] inline-block align-middle" :title="slotProps.data.comment">{{ slotProps.data.comment || '—' }}</span>
+                </template>
+              </Column>
+              <Column header="Fuente">
+                <template #body="slotProps">
+                  {{ slotProps.data.sourceId || '—' }}
+                </template>
+              </Column>
+              <template #empty>
+                <div class="py-10 text-center text-slate-600">
+                  <i class="pi pi-inbox text-3xl mb-2 text-slate-400" aria-hidden="true"></i>
+                  <div>Este restaurante aún no tiene reseñas.</div>
+                </div>
+              </template>
+              <template #loading>
+                <div class="py-10 text-center text-slate-600">
+                  Cargando reseñas…
+                </div>
+              </template>
+              <template #footer>
+                Hay en total {{ reviewsState.data ? (reviewsState.data as any[]).length : 0 }} reseñas.
+              </template>
+            </DataTable>
+          </div>
+        </section>
       </div>
     </main>
   </div>
@@ -155,6 +207,7 @@
 import { computed, ref, watchEffect } from 'vue'
 import { getHotelById } from '~/lib/api/establishments/hotels'
 import { getRestaurantById, getRestaurantDishes } from '~/lib/api/establishments/restaurants'
+import { getReviews } from '~/lib/api/reviews/reviews'
 
 // Restaurant detail
 const { state } = useCustomQuery({
@@ -166,6 +219,12 @@ const { state } = useCustomQuery({
 const { state: dishesState, asyncStatus: dishesAsyncStatus } = useCustomQuery({
   key: ['restaurantDishes', useRoute().params.id as string],
   query: () => getRestaurantDishes(useRoute().params.id as string),
+})
+
+// Reviews for this restaurant
+const { state: reviewsState, asyncStatus: reviewsAsyncStatus } = useCustomQuery({
+  key: ['restaurantReviews', useRoute().params.id as string],
+  query: () => getReviews({ establishmentId: useRoute().params.id as string, establishmentType: 'RESTAURANT' }),
 })
 
 // Optional hotel preview
@@ -186,6 +245,12 @@ watchEffect(async () => {
 const restaurant = computed(() => state.value.data?.restaurant as any)
 const restaurantName = computed(() => restaurant.value?.name || '')
 const isDisabled = computed(() => !!restaurant.value?.desactivatedAt)
+const averageRating = computed(() => {
+  const list = (reviewsState.value.data as any[]) || []
+  if (!list.length) return null
+  const sum = list.reduce((acc, r) => acc + (Number(r.rating) || 0), 0)
+  return (sum / list.length)
+})
 
 function formatGTQ(v: number | string | null | undefined) {
   if (v === null || v === undefined) return '—'

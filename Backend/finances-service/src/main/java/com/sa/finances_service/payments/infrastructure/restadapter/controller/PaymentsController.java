@@ -1,8 +1,11 @@
 package com.sa.finances_service.payments.infrastructure.restadapter.controller;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,9 +14,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sa.finances_service.payments.application.dtos.CreatePaymentDTO;
+import com.sa.finances_service.payments.application.dtos.FindPaymentsDTO;
 import com.sa.finances_service.payments.application.inputports.CreatePaymentInputPort;
 import com.sa.finances_service.payments.application.inputports.FindPaymentByIdInputPort;
 import com.sa.finances_service.payments.application.inputports.FindPaymentsInputPort;
@@ -88,9 +93,28 @@ public class PaymentsController {
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @GetMapping({"","/"})
-    public ResponseEntity<List<PaymentHydratedResponse>> getPayments() {
+    public ResponseEntity<List<PaymentHydratedResponse>> getPayments(
+            @RequestParam(required = false) String establishmentId,
+            @RequestParam(required = false) String clientId,
+            @RequestParam(required = false) String sourceType,
+            @RequestParam(required = false) String sourceId,
+            @RequestParam(required = false) String method,
+            @RequestParam(required = false) String promotionId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
+    ) {
+        FindPaymentsDTO dto = FindPaymentsDTO.builder()
+                .establishmentId(establishmentId)
+                .clientId(clientId)
+                .sourceType(sourceType)
+                .sourceId(sourceId)
+                .method(method)
+                .promotionId(promotionId)
+                .fromDate(fromDate)
+                .toDate(toDate)
+                .build();
 
-        List<Payment> result = findPaymentsInputPort.handle();
+        List<Payment> result = findPaymentsInputPort.handle(dto);
 
         List<PaymentHydratedResponse> response = paymentResponseAssembler.toResponseList(result);
 

@@ -22,19 +22,18 @@ public class CreatePaymentUseCase implements CreatePaymentInputPort {
 
     @Override
     public Payment handle(CreatePaymentDTO createPaymentDTO) throws NotFoundException {
-        System.out.println("CREATIIING"+ createPaymentDTO);
         Payment createdPayment = Payment.create(createPaymentDTO.getEstablishmentId(),
                 createPaymentDTO.getClientId(), SourceTypeEnum.valueOf(createPaymentDTO.getSourceType()),
                 createPaymentDTO.getSourceId(),
                 createPaymentDTO.getSubtotal(), PaymentMethodEnum.valueOf(createPaymentDTO.getMethod()),
-                createPaymentDTO.getCardNumber());
+                createPaymentDTO.getCardNumber(), createPaymentDTO.getPaidAt());
 
         if (createPaymentDTO.getPromotionId() != null) {
             Promotion promotion = findPromotionByIdOutputPort
                     .findById(createPaymentDTO.getPromotionId().toString())
                     .orElseThrow(() -> new NotFoundException("La promocion ingresada no existe."));
 
-            createdPayment.applyPromotion(promotion.getId().toString(), promotion.getPromotionType().getName(),
+            createdPayment.applyPromotion(promotion.getId().toString(), promotion.getName(),
                     promotion.getPercentage());
         }
 

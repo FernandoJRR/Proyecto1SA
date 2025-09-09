@@ -1,6 +1,7 @@
 package com.sa.finances_service.payments.domain;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 
 import com.sa.domain.Auditor;
@@ -33,6 +34,8 @@ public class Payment extends Auditor implements Promotionable {
 
     private PromotionApplied promotionApplied;
 
+    private LocalDate paidAt;
+
     public Payment(
             UUID id,
             UUID establishmentId,
@@ -44,7 +47,9 @@ public class Payment extends Auditor implements Promotionable {
             BigDecimal total,
             PaymentMethodEnum method,
             PaymentStatusEnum status,
-            String cardNumber) {
+            String cardNumber,
+            LocalDate paidAt
+            ) {
         super(id);
         this.establishmentId = establishmentId;
         this.clientId = clientId;
@@ -56,6 +61,7 @@ public class Payment extends Auditor implements Promotionable {
         this.method = method;
         this.status = status;
         this.cardNumber = cardNumber;
+        this.paidAt = paidAt;
     }
 
     public static Payment create(
@@ -65,12 +71,15 @@ public class Payment extends Auditor implements Promotionable {
             UUID sourceId,
             BigDecimal subtotal,
             PaymentMethodEnum method,
-            String cardNumber) {
+            String cardNumber,
+            LocalDate paidAt) {
         return new Payment(UUID.randomUUID(),
                 establishmentId,
                 clientId,
                 sourceType,
-                sourceId, subtotal, BigDecimal.valueOf(0), subtotal, method, PaymentStatusEnum.PAID, cardNumber);
+                sourceId, subtotal, BigDecimal.valueOf(0),
+                subtotal, method, PaymentStatusEnum.PAID, cardNumber,
+                paidAt);
     }
 
     @Override

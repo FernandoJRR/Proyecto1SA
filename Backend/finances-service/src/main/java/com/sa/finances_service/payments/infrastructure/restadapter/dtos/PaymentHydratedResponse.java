@@ -1,6 +1,7 @@
 package com.sa.finances_service.payments.infrastructure.restadapter.dtos;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 
 import com.sa.finances_service.payments.application.dtos.HotelDTO;
@@ -31,6 +32,8 @@ public class PaymentHydratedResponse {
     private String cardNumber;
 
     private PromotionAppliedResponse promotionApplied;
+
+    private LocalDate paidAt;
 
     private HotelDTO hotel;
     private RestaurantDTO restaurant;

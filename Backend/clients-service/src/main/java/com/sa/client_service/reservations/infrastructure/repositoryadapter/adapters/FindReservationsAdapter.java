@@ -29,11 +29,11 @@ public class FindReservationsAdapter implements FindReservationsOutputPort {
         Specification<ReservationEntity> spec = Specification.where(null);
 
         if (hotelId != null) {
-            spec = spec.and((root, q, cb) -> cb.equal(root.get("hotelId"), hotelId.toString()));
+            spec = spec.and((root, q, cb) -> cb.equal(root.get("hotelId"), hotelId));
         }
 
         if (roomId != null) {
-            spec = spec.and((root, q, cb) -> cb.equal(root.get("roomId"), roomId.toString()));
+            spec = spec.and((root, q, cb) -> cb.equal(root.get("roomId"), roomId));
         }
 
         if (clientCui != null) {

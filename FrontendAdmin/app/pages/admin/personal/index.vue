@@ -29,8 +29,34 @@
           :rowsPerPageOptions="[10,20,50]"
         >
           <template #header>
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <span class="text-sm text-slate-600">Total: <span class="font-semibold">{{ state.data ? (state.data as any[]).length : 0 }}</span></span>
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center gap-2">
+                <span class="text-sm text-slate-600">Total: <span class="font-semibold">{{ state.data ? (state.data as any[]).length : 0 }}</span></span>
+              </div>
+              <div class="flex items-center gap-2">
+                <Dropdown
+                  v-model="establishmentType"
+                  :options="establishmentTypeOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Tipo de establecimiento"
+                  class="w-56"
+                />
+                <Dropdown
+                  v-if="establishmentType"
+                  v-model="establishmentId"
+                  :options="establishmentOptions"
+                  :loading="establishmentsLoading"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Selecciona establecimiento"
+                  class="w-64"
+                  showClear
+                  filter
+                />
+                <Button icon="pi pi-search" label="Filtrar" size="small" @click="applyFilter" />
+                <Button icon="pi pi-times" label="Limpiar" size="small" severity="secondary" text @click="clearFilter" />
+              </div>
             </div>
           </template>
 
@@ -42,6 +68,12 @@
               <template v-else>
                 {{ `Admin` }}
               </template>
+            </template>
+          </Column>
+
+          <Column header="Salario semanal">
+            <template #body="slotProps">
+              <Tag>Q. {{ slotProps.data.salary }}</Tag>
             </template>
           </Column>
 
@@ -96,12 +128,59 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router';
 import { getAllEmployees, type Employee } from '~/lib/api/admin/employee';
+import InputText from 'primevue/inputtext'
+import Dropdown from 'primevue/dropdown'
+import { getAllHotels } from '~/lib/api/establishments/hotels';
+import { getAllRestaurants } from '~/lib/api/establishments/restaurants';
+
+const establishmentType = ref<'' | 'HOTEL' | 'RESTAURANT'>('')
+const establishmentId = ref<string>('') // seleccionado en dropdown
+const establishmentOptions = ref<Array<{ label: string; value: string }>>([])
+const establishmentsLoading = ref(false)
+
+const establishmentTypeOptions = [
+  { value: '', label: '— Tipo —' },
+  { value: 'HOTEL', label: 'Hotel' },
+  { value: 'RESTAURANT', label: 'Restaurante' },
+]
+
+watch(establishmentType, async (t) => {
+  establishmentId.value = ''
+  establishmentOptions.value = []
+  if (!t) return
+  establishmentsLoading.value = true
+  try {
+    if (t === 'HOTEL') {
+      const hotels = await getAllHotels()
+      establishmentOptions.value = (hotels ?? []).map((h: any) => ({ label: h.name ?? h.id, value: h.id }))
+    } else if (t === 'RESTAURANT') {
+      const restaurants = await getAllRestaurants()
+      establishmentOptions.value = (restaurants ?? []).map((r: any) => ({ label: r.name ?? r.id, value: r.id }))
+    }
+  } catch (e: any) {
+    // opcional: mostrar toast si lo tienes disponible globalmente
+    console.error('No se pudieron cargar los establecimientos', e?.message || e)
+  } finally {
+    establishmentsLoading.value = false
+  }
+})
+
+function applyFilter() {
+  refetch()
+}
+function clearFilter() {
+  establishmentType.value = ''
+  establishmentId.value = ''
+  establishmentOptions.value = []
+  establishmentsLoading.value = false
+  refetch()
+}
 
 const { employee } = storeToRefs(useAuthStore())
 
-const { state, asyncStatus } = useCustomQuery({
-  key: ['empleados'],
-  query: () => getAllEmployees()
+const { state, asyncStatus, refetch } = useCustomQuery({
+  key: ['empleados', establishmentType, establishmentId],
+  query: () => getAllEmployees(establishmentId.value ? { establishmentId: establishmentId.value } : {}),
 })
 
 </script>

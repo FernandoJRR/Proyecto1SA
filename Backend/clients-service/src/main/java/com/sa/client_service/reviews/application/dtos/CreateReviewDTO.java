@@ -18,11 +18,14 @@ public class CreateReviewDTO {
     @NotNull(message = "El CUI del cliente es obligatorio")
     private String clientCui;
 
-    @NotBlank(message = "El ID del hotel es obligatorio")
-    private String hotelId;
+    @NotBlank(message = "El ID del establecimiento es obligatorio")
+    private String establishmentId;
 
-    @NotBlank(message = "El ID de la habitacion es obligatorio")
-    private String roomId;
+    @NotBlank(message = "El tipo de establecimiento es obligatorio")
+    private String establishmentType;
+
+    @NotBlank(message = "El ID del origen es obligatorio")
+    private String sourceId;
 
     @Min(value = 1, message = "El rating debe ser de al menos 1")
     @Max(value = 5, message = "El rating debe de ser de maximo 5")

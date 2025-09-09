@@ -3,6 +3,7 @@ package com.sa.employee_service.employees.infrastructure.restadapter.controllers
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -127,75 +128,6 @@ public class EmployeesController {
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
-
-    @Operation(summary = "Edita el salario de un empleado", description = "Este endpoint permite la edición del salario de un empleado en el sistema.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Empleado editado exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmployeeResponseDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida, usualmente por error en la validacion de parametros.", content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "404", description = "Recursos no econtrados, el usuario a editar no existe o el tipo de empleado no existe.", content = @Content(mediaType = "application/json")),
-
-    })
-    @PatchMapping("/{employeeId}/salary")
-    @PreAuthorize("hasAuthority('UPDATE_EMPLOYEE_SALARY')")
-    public ResponseEntity<EmployeeResponseDTO> updateEmployeeSalary(
-            @RequestBody @Valid EmployeeSalaryRequestDTO request,
-            @PathVariable("employeeId") @NotBlank(message = "El id del empleado no puede estar vacio") String employeeId)
-            throws NotFoundException, InvalidPeriodException {
-
-        // mandar a editar el employee al port
-        EmployeeEntity result = employeesPort.updateEmployeeSalary(employeeId, request.getSalary(),
-                request.getSalaryDate());
-
-        // convertir el Employee al dto
-        EmployeeResponseDTO response = employeeMapper.fromEmployeeToResponse(result);
-
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
-
-    @Operation(summary = "Desactiva un empleado", description = "Este endpoint permite la cambiar el estado de desactivatedAt de un empleado en el sistema segun su id.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Empleado desactivado exitosamente"),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida, usualmente por error en la validacion de parametros.", content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "404", description = "Recursos no econtrados, el usuario a desactivar.", content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "409", description = "Conflicto, el empleaod ya esta desactivado.", content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    })
-    @PatchMapping("/{employeeId}/desactivate")
-    @PreAuthorize("hasAuthority('DESACTIVATE_EMPLOYEE')")
-    public ResponseEntity<Void> desactivateEmployee(
-            @RequestBody @Valid EmployeeDeactivateRequestDTO request,
-            @PathVariable("employeeId") String employeeId)
-            throws NotFoundException, IllegalStateException, InvalidPeriodException {
-
-        HistoryType historyTypeReason = historyTypeMapper.fromIdRequestDtoToHistoryType(request.getHistoryTypeId());
-        // mandar a desactivar el employee al port
-        employeesPort.desactivateEmployee(employeeId, request.getDeactivationDate(), historyTypeReason);
-
-        return ResponseEntity.noContent().build();
-
-    }
-
-    @Operation(summary = "Reactiva un empleado", description = "Este endpoint permite la reactivar el estado de desactivatedAt de un empleado en el sistema segun su id.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Empleado desactivado exitosamente"),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida, usualmente por error en la validacion de parametros.", content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "404", description = "Recursos no econtrados, el usuario a desactivar.", content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "409", description = "Conflicto, el empleaod ya esta desactivado.", content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
-    })
-    @PreAuthorize("hasAuthority('RESACTIVATE_EMPLOYEE')")
-    @PatchMapping("/{employeeId}/reactivate")
-    public ResponseEntity<Void> reactivateEmployee(
-            @RequestBody @Valid EmployeeReactivateRequestDTO request,
-            @PathVariable("employeeId") String employeeId)
-            throws NotFoundException, IllegalStateException, InvalidPeriodException {
-
-        // mandar a desactivar el employee al port
-        employeesPort.reactivateEmployee(employeeId, request.getReactivationDate());
-
-        return ResponseEntity.noContent().build();
-
-    }
     */
 
     @Operation(summary = "Busca un empleado", description = "Este endpoint permite la busqueda de un empleado en base a su Id.")
@@ -235,14 +167,12 @@ public class EmployeesController {
     })
     @GetMapping({"","/"})
     public ResponseEntity<List<EmployeeResponseDTO>> findEmployees(
-        @RequestParam(name = "type", required = false) String employeeTypeId) throws NotFoundException {
+        @RequestParam(name = "type", required = false) String employeeTypeId,
+        @RequestParam(required = false) String establishmentId
+        )
+        throws NotFoundException {
 
-        List<Employee> result;
-        if (employeeTypeId != null) {
-            result = findEmployeesByTypeInputPort.handle(employeeTypeId);
-        } else {
-            result = findAllEmployeesInputPort.handle();
-        }
+        List<Employee> result = findAllEmployeesInputPort.handle(employeeTypeId, establishmentId);
 
         List<EmployeeResponseDTO> response = employeeResponseMapper.toResponse(result);
 

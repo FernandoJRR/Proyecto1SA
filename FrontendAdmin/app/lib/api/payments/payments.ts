@@ -18,7 +18,8 @@ export interface Payment extends Entity {
   cardNumber: string,
   promotionApplied?: PromotionApplied,
   hotel?: Hotel,
-  restaurant?: Restaurant
+  restaurant?: Restaurant,
+  description?: string
 }
 
 /**

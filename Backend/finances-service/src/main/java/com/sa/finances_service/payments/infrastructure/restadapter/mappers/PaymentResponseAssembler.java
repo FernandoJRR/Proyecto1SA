@@ -38,6 +38,7 @@ public class PaymentResponseAssembler {
                     r.getStatus().toString(),
                     r.getCardNumber(),
                     promotionRestMapper.toResponse(r.getPromotionApplied()),
+                    r.getPaidAt(),
                     null,
                     restaurant
                     );
@@ -56,6 +57,7 @@ public class PaymentResponseAssembler {
                     r.getStatus().toString(),
                     r.getCardNumber(),
                     promotionRestMapper.toResponse(r.getPromotionApplied()),
+                    r.getPaidAt(),
                     hotel,
                     null
                     );

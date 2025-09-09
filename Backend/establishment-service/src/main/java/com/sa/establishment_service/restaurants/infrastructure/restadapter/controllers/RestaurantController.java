@@ -24,6 +24,7 @@ import com.sa.establishment_service.restaurants.application.inputports.CreateRes
 import com.sa.establishment_service.restaurants.application.inputports.ExistDishesRestaurantInputPort;
 import com.sa.establishment_service.restaurants.application.inputports.ExistsRestaurantByIdInputPort;
 import com.sa.establishment_service.restaurants.application.inputports.FindAllRestaurantsInputPort;
+import com.sa.establishment_service.restaurants.application.inputports.FindDishByIdInputPort;
 import com.sa.establishment_service.restaurants.application.inputports.FindDishesByRestaurantInputPort;
 import com.sa.establishment_service.restaurants.application.inputports.FindRestaurantByIdInputPort;
 import com.sa.establishment_service.restaurants.application.inputports.FindRestaurantsByHotelInputPort;
@@ -65,6 +66,7 @@ public class RestaurantController {
     private final FindRestaurantByIdInputPort findRestaurantByIdInputPort;
     private final FindRestaurantsByHotelInputPort findRestaurantsByHotelInputPort;
     private final FindDishesByRestaurantInputPort findDishesByRestaurantInputPort;
+    private final FindDishByIdInputPort findDishByIdInputPort;
 
     @Operation(summary = "Crear un nuevo restaurante", description = "Este endpoint permite la creación de un nuevo restaurante en el sistema.")
     @ApiResponses(value = {
@@ -179,6 +181,26 @@ public class RestaurantController {
         List<Dish> result = findDishesByRestaurantInputPort.handle(restaurantId);
 
         List<DishResponse> response = dishRestMapper.toResponse(result);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "Obtener un platillo", description = "Este endpoint permite la obtencion de un platillo en el sistema.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Platillo obtenido exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DishResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Solicitud inválida, usualmente por error en la validacion de parametros.", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    @GetMapping("/{restaurantId}/dishes/{dishId}")
+    public ResponseEntity<DishResponse> getDishRestaurant(
+            @PathVariable("restaurantId") String restaurantId,
+            @PathVariable("dishId") String dishId
+            )
+            throws NotFoundException {
+
+        Dish result = findDishByIdInputPort.handle(restaurantId, dishId);
+
+        DishResponse response = dishRestMapper.toResponse(result);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

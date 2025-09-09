@@ -162,33 +162,3 @@ export const deactivateEmployee = async (
   );
   return response;
 };
-
-export const reactivateEmployee = async (
-  data: EmployeeReactivationPayload,
-  employeeId: string
-) => {
-  const response = await $api<Employee>(
-    `${CURRENT_EMPLOYEE_URI}/${employeeId}/reactivate`,
-    {
-      method: "PATCH",
-      body: data,
-    }
-  );
-  return response;
-};
-
-export const createExtraPayment = async (data: ExtraPaymentPayload) => {
-  const response = await $api<ExtraPayment>(`${CURRENT_EXTRA_PAYMENT_URI}`, {
-    method: "POST",
-    body: data,
-  });
-  return response;
-};
-
-export async function getAllExtraPayments() {
-  return await $api<ExtraPayment[]>(`${CURRENT_EXTRA_PAYMENT_URI}`);
-}
-
-export async function getExtraPaymentById(paymentId: string) {
-  return await $api<ExtraPayment>(`${CURRENT_EXTRA_PAYMENT_URI}/${paymentId}`);
-}

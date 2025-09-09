@@ -10,7 +10,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReviewResponse {
-    private String roomId;
+    private String establishmentId;
+    private String sourceId;
     private Integer Rating;
     private String comment;
 }

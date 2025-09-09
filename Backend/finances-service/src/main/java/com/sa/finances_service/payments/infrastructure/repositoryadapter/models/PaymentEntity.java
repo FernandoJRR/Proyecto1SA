@@ -1,6 +1,7 @@
 package com.sa.finances_service.payments.infrastructure.repositoryadapter.models;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import com.sa.finances_service.payments.domain.PaymentMethodEnum;
 import com.sa.finances_service.payments.domain.PaymentStatusEnum;
@@ -59,4 +60,7 @@ public class PaymentEntity extends AuditorEntity {
 
     @Embedded
     private PromotionAppliedEntity promotionApplied;
+
+    @Column(name = "paid_at", length = 19)
+    private LocalDate paidAt;
 }

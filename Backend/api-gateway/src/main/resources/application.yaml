@@ -30,7 +30,7 @@ spring:
         - id: establishment-service
           uri: lb://ESTABLISHMENT-SERVICE
           predicates:
-            - Path=/api/v1/hotels,/api/v1/hotels/**,/api/v1/restaurants,/api/v1/restaurants/**
+            - Path=/api/v1/hotels,/api/v1/hotels/**,/api/v1/restaurants,/api/v1/restaurants/**, /api/v1/establishments, /api/v1/establishments/**
         - id: establishment-service-docs
           uri: lb://ESTABLISHMENT-SERVICE
           predicates:

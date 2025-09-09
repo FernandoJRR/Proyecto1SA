@@ -45,6 +45,10 @@ export async function getRestaurantDishes(restaurant_id: string) {
   return await $api<Dish[]>(`${CURRENT_RESTAURANTS_URI}/${restaurant_id}/dishes`)
 }
 
+export async function getRestaurantDish(restaurant_id: string, dish_id: string) {
+  return await $api<Dish>(`${CURRENT_RESTAURANTS_URI}/${restaurant_id}/dishes/${dish_id}`)
+}
+
 export interface CreateRestaurantPayload {
   name: string;
   address: string;

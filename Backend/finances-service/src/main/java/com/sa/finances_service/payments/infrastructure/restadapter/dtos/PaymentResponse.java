@@ -1,6 +1,7 @@
 package com.sa.finances_service.payments.infrastructure.restadapter.dtos;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 
 import com.sa.finances_service.shared.infrastructure.dtos.PromotionAppliedResponse;
@@ -27,4 +28,6 @@ public class PaymentResponse {
     private String cardNumber;
 
     private PromotionAppliedResponse promotionApplied;
+
+    private LocalDate paidAt;
 }

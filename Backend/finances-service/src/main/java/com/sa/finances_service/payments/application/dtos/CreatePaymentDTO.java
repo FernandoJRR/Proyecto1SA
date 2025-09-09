@@ -1,6 +1,7 @@
 package com.sa.finances_service.payments.application.dtos;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 
 import jakarta.validation.Valid;
@@ -44,4 +45,7 @@ public class CreatePaymentDTO {
     private String cardNumber;
 
     private String promotionId;
+
+    @NotNull(message = "La fecha de pago es obligatoria.")
+    private LocalDate paidAt;
 }

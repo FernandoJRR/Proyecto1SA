@@ -77,3 +77,9 @@ export async function createHotelRoom(hotel_id: string, payload: CreateRoomPaylo
     body: payload,
   })
 }
+
+export async function getHotelRoom(hotel_id: string, room_id: string) {
+  return await $api<Room>(`${CURRENT_HOTELS_URI}/${hotel_id}/rooms/${room_id}`, {
+    method: 'GET',
+  })
+}

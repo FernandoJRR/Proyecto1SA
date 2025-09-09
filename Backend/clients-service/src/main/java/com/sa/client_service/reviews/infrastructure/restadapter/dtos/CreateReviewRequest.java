@@ -11,9 +11,11 @@ public class CreateReviewRequest {
 
     private String clientCui;
 
-    private String hotelId;
+    private String establishmentId;
 
-    private String roomId;
+    private String establishmentType;
+
+    private String sourceId;
 
     private int rating;
 

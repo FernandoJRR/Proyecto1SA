@@ -1,6 +1,7 @@
 package com.sa.finances_service.payments.infrastructure.restadapter.dtos;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 
 import lombok.Data;
@@ -25,4 +26,6 @@ public class CreatePaymentRequest {
     private String cardNumber;
 
     private String promotionId;
+
+    private LocalDate paidAt;
 }

@@ -18,7 +18,7 @@ public class FindEmployeesByTypeUseCase implements FindEmployeesByTypeInputPort 
     private final FindEmployeesByTypeOutputPort findEmployeesByTypeOutputPort;
     private final FindEmployeeTypeByIdOutputPort findEmployeeTypeByIdOutputPort;
 
-    public List<Employee> handle(String employeeTypeId) throws NotFoundException {
+    public List<Employee> handle(String employeeTypeId, UUID establishmentId) throws NotFoundException {
         findEmployeeTypeByIdOutputPort.findEmployeeTypeById(UUID.fromString(employeeTypeId))
             .orElseThrow(() -> new NotFoundException("El tipo de empleado no existe"));
 

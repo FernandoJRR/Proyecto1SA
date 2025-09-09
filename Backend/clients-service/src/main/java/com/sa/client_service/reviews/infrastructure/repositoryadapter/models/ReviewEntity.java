@@ -30,10 +30,13 @@ import lombok.Setter;
 public class ReviewEntity extends AuditorEntity {
 
     @Column(nullable = false)
-    private String hotelId;
+    private String establishmentId;
 
     @Column(nullable = false)
-    private String roomId;
+    private String establishmentType;
+
+    @Column(nullable = false)
+    private String sourceId;
 
     @Column(nullable = false, length = 2000)
     private String comment;

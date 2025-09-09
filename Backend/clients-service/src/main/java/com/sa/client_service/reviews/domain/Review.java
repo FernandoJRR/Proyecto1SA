@@ -12,20 +12,25 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class Review extends Auditor {
     private Client client;
-    private String hotelId;
-    private String roomId;
+    private String establishmentId;
+    private EstablishmentType establishmentType;
+    private String sourceId;
     private Rating rating;
     private String comment;
 
-    public Review(UUID id, String hotelId, String roomId, Rating rating, String comment) {
+    public Review(UUID id,
+    String establishmentId,
+    EstablishmentType establishmentType,
+    String sourceId, Rating rating, String comment) {
         super(id);
-        this.hotelId = hotelId;
-        this.roomId = roomId;
+        this.establishmentId = establishmentId;
+        this.establishmentType = establishmentType;
+        this.sourceId = sourceId;
         this.rating = rating;
         this.comment = comment == null ? "" : comment.trim();
     }
 
-    public static Review create(String hotelId, String roomId, int rating, String comment) {
-        return new Review(UUID.randomUUID(), hotelId, roomId, Rating.of(rating), comment);
+    public static Review create(String establishmentId, EstablishmentType establishmentType, String sourceId, int rating, String comment) {
+        return new Review(UUID.randomUUID(), establishmentId, establishmentType, sourceId, Rating.of(rating), comment);
     }
 }
