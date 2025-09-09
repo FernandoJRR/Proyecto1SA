@@ -3,7 +3,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
       <Dropdown v-model="reportType" :options="availableReports" optionLabel="label" optionValue="value" placeholder="Seleccionar reporte" class="w-full" />
 
-      <!-- Establishment type + selector (optional by report) -->
+      <!-- Establishment type + selector (optional by report; excludes MOST_POPULAR_ROOM) -->
       <div class="flex gap-2" v-if="needsEstablishment">
         <Dropdown
           v-model="establishmentType"
@@ -21,6 +21,21 @@
           optionLabel="label"
           optionValue="value"
           placeholder="Selecciona el establecimiento"
+          class="w-full"
+          showClear
+          filter
+        />
+      </div>
+
+      <!-- ONLY for MOST_POPULAR_ROOM: a single optional Hotel selector -->
+      <div class="flex gap-2" v-else-if="needsHotelOnly">
+        <Dropdown
+          v-model="popularHotelId"
+          :options="popularHotelOptions"
+          :loading="popularHotelsLoading"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Selecciona un hotel (opcional)"
           class="w-full"
           showClear
           filter
@@ -93,6 +108,9 @@ import InputText from 'primevue/inputtext'
 import Dropdown from 'primevue/dropdown'
 import { getIncomeReport } from '~/lib/api/reportes/reporte';
 import { getIncomeClientReport } from '~/lib/api/reportes/reporte';
+import { getIncomeOutcomeReport } from '~/lib/api/reportes/reporte';
+import { getMostPopularRoomReport } from '~/lib/api/reportes/reporte';
+import { getMostPopularRestaurantReport } from '~/lib/api/reportes/reporte';
 import { getAllHotels } from '~/lib/api/establishments/hotels'
 import { getAllRestaurants } from '~/lib/api/establishments/restaurants'
 
@@ -140,8 +158,30 @@ watch(establishmentType, async (t) => {
 })
 
 /** Bandera de UI: qué filtros mostrar para cada reporte */
-const needsEstablishment = computed(() => ['ESTABLISHMENT_INCOME', 'EMPLOYEE_DETAILS', 'MOST_POPULAR_ROOM', 'MOST_POPULAR_RESTAURANT', 'CLIENT_ACTIVITY'].includes(reportType.value))
+const needsEstablishment = computed(() => ['ESTABLISHMENT_INCOME', 'CLIENT_ACTIVITY'].includes(reportType.value))
+const needsHotelOnly = computed(() => reportType.value === 'MOST_POPULAR_ROOM')
 const needsClient = computed(() => ['CLIENT_ACTIVITY'].includes(reportType.value))
+// For MOST_POPULAR_ROOM: single optional hotel selector
+const popularHotelId = ref<string>('')
+const popularHotelOptions = ref<Array<{ label: string; value: string }>>([])
+const popularHotelsLoading = ref(false)
+
+// Load hotels when switching to MOST_POPULAR_ROOM
+watch(reportType, async (rt) => {
+  if (rt === 'MOST_POPULAR_ROOM') {
+    if (popularHotelOptions.value.length === 0) {
+      popularHotelsLoading.value = true
+      try {
+        const hotels = await getAllHotels()
+        popularHotelOptions.value = (hotels ?? []).map((h: any) => ({ label: h.name ?? h.id, value: h.id }))
+      } catch (e: any) {
+        toast.error('No se pudieron cargar los hoteles', { description: e?.message })
+      } finally {
+        popularHotelsLoading.value = false
+      }
+    }
+  }
+})
 
 /** Resumen genérico */
 const summary = ref<null | { title: string; cards: Array<{ label: string; value: string | number | null; class?: string }> }>(null)
@@ -149,7 +189,6 @@ const summary = ref<null | { title: string; cards: Array<{ label: string; value:
 const availableReports = [
   { value: 'ESTABLISHMENT_INCOME', label: 'Ingresos por establecimiento (rango de fechas)' },
   { value: 'CLIENT_ACTIVITY', label: 'Alojamientos y consumos por cliente (rango de fechas, opcional por establecimiento)' },
-  { value: 'EMPLOYEE_DETAILS', label: 'Detalles de empleados de un establecimiento' },
   { value: 'PROFIT_REPORT', label: 'Ganancias (costos vs ingresos)' },
   { value: 'MOST_POPULAR_ROOM', label: 'Habitación más popular (listado de alojamientos)' },
   { value: 'MOST_POPULAR_RESTAURANT', label: 'Restaurante más popular (listado de consumos)' },
@@ -361,48 +400,75 @@ const cargarReporteActual = async () => {
         break
       }
 
-      case 'EMPLOYEE_DETAILS': {
-        tableConfig.value = {
-          dataKey: 'employeeId',
-          reportHeader: 'Detalles de empleados por establecimiento',
-          columns: [
-            { field: 'employeeId', header: 'ID' },
-            { field: 'fullName', header: 'Nombre' },
-            { field: 'role', header: 'Rol' },
-            { field: 'status', header: 'Estado' },
-            { field: 'hiredAt', header: 'Fecha de ingreso' },
-          ],
-        }
-        summary.value = {
-          title: 'Resumen de empleados',
-          cards: [
-            { label: 'Establecimiento', value: (establishmentOptions.value.find(o => o.value === establishmentId.value)?.label) || (establishmentId.value || '—') },
-            { label: 'Total empleados', value: null },
-            { label: 'Activos', value: null },
-          ],
-        }
-        break
-      }
-
       case 'PROFIT_REPORT': {
         tableConfig.value = {
           dataKey: 'id',
-          reportHeader: 'Reporte de ganancias (costos vs ingresos)',
-          reportSubheader: 'Incluye costos y ventas dentro del rango de fechas',
+          reportHeader: 'Ingresos vs Egresos',
+          reportSubheader: 'Listado de ingresos (pagos) y resumen de egresos por rango de fechas',
           columns: [
             { field: 'date', header: 'Fecha' },
-            { field: 'category', header: 'Categoría (Costo/Ingreso)' },
-            { field: 'concept', header: 'Concepto' },
-            { field: 'amount', header: 'Monto', render: (r:any) => r.amount != null ? `Q ${r.amount}` : '-' },
+            { field: 'sourceType', header: 'Fuente' },
+            { field: 'establishmentId', header: 'Establecimiento' },
+            { field: 'clientId', header: 'Cliente' },
+            { field: 'total', header: 'Monto', render: (r:any) => r.total != null ? formatGTQ(r.total) : '-' },
           ],
         }
+        // Resumen base (se completará tras la consulta)
         summary.value = {
           title: 'Resumen de ganancias',
           cards: [
             { label: 'Ingresos', value: null, class: 'text-emerald-700' },
-            { label: 'Costos', value: null, class: 'text-rose-700' },
+            { label: 'Egresos', value: null, class: 'text-rose-700' },
             { label: 'Ganancia Neta', value: null, class: 'text-slate-900' },
           ],
+        }
+
+        // Guard: este reporte requiere rango de fechas
+        if (!startDate.value || !endDate.value) {
+          toast.info('Selecciona un rango de fechas (inicio y fin) para ver ingresos y egresos')
+          break
+        }
+
+        reportLoading.value = true
+        try {
+          const res: any = await getIncomeOutcomeReport(
+            startDate.value,
+            endDate.value
+          )
+
+          const payments: any[] = Array.isArray(res?.payments) ? res.payments : []
+          // Map a filas de tabla (ingresos)
+          reportData.value.data = payments.map((p: any) => ({
+            id: p.id ?? `${p.sourceType || 'PAGO'}-${p.sourceId || ''}-${p.paidAt || ''}`,
+            date: p.paidAt ?? p.date ?? p.createdAt ?? null,
+            sourceType: p.sourceType ?? '—',
+            establishmentId: p.establishmentId ?? '—',
+            clientId: p.clientId ?? '—',
+            total: Number(p.total ?? p.amount ?? 0),
+          }))
+
+          const totalIncome = Number(res?.totalIncome ?? reportData.value.data.reduce((acc, r) => acc + (Number(r.total) || 0), 0))
+          const totalOutcome = Number(res?.totalOutcome ?? 0)
+          const outcomeHotels = Number(res?.outcome?.totalOutcomeHotels ?? 0)
+          const outcomeRestaurants = Number(res?.outcome?.totalOutcomeRestaurants ?? 0)
+          const net = totalIncome - totalOutcome
+
+          summary.value = {
+            title: 'Resumen de ganancias',
+            cards: [
+              { label: 'Ingresos', value: formatGTQ(totalIncome), class: 'text-emerald-700' },
+              { label: 'Egresos', value: formatGTQ(totalOutcome), class: 'text-rose-700' },
+              { label: 'Ganancia Neta', value: formatGTQ(net), class: 'text-slate-900' },
+              { label: 'Egresos Hoteles', value: formatGTQ(outcomeHotels) },
+              { label: 'Egresos Restaurantes', value: formatGTQ(outcomeRestaurants) },
+              { label: 'Pagos (ingresos) listados', value: payments.length },
+            ],
+          }
+        } catch (err:any) {
+          toast.error('No se pudo cargar el reporte de ingresos vs egresos', { description: err?.message })
+          reportData.value.data = []
+        } finally {
+          reportLoading.value = false
         }
         break
       }
@@ -413,20 +479,56 @@ const cargarReporteActual = async () => {
           reportHeader: 'Habitación más popular',
           reportSubheader: 'Listado de alojamientos de la habitación con más reservas',
           columns: [
-            { field: 'roomId', header: 'Habitación' },
-            { field: 'hotelId', header: 'Hotel' },
-            { field: 'clientId', header: 'Cliente' },
+            { field: 'room', header: 'Habitación' },
+            { field: 'hotel', header: 'Hotel' },
+            { field: 'clientCui', header: 'Cliente (CUI)' },
             { field: 'startDate', header: 'Inicio' },
             { field: 'endDate', header: 'Fin' },
+            { field: 'totalCost', header: 'Total', render: (r:any) => r.totalCost != null ? formatGTQ(r.totalCost) : '-' },
           ],
         }
+        // Resumen base (se actualiza tras la consulta)
         summary.value = {
           title: 'Resumen de popularidad de habitación',
           cards: [
             { label: 'Habitación más popular', value: null },
             { label: 'Total alojamientos', value: null },
-            { label: 'Hotel', value: (establishmentOptions.value.find(o => o.value === establishmentId.value)?.label) || (establishmentId.value || '—') },
+            { label: 'Hotel', value: (popularHotelOptions.value.find(o => o.value === popularHotelId.value)?.label) || (popularHotelId.value || 'Todos') },
           ],
+        }
+
+        reportLoading.value = true
+        try {
+          const res: any = await getMostPopularRoomReport(popularHotelId.value || null)
+          const hotelName = res?.hotelName ?? (popularHotelOptions.value.find(o => o.value === popularHotelId.value)?.label) ?? '—'
+          const roomNumber = res?.roomNumber ?? '—'
+          const reservations: any[] = Array.isArray(res?.reservations) ? res.reservations : []
+
+          // Mapear a filas de tabla (cada reserva)
+          reportData.value.data = reservations.map((r: any) => ({
+            stayId: r.id ?? `${r.roomId || roomNumber}-${r.startDate || ''}`,
+            room: roomNumber !== '—' ? `#${roomNumber}` : (r.roomId || '—'),
+            hotel: hotelName,
+            clientCui: r.clientCui ?? '—',
+            startDate: r.startDate ?? '—',
+            endDate: r.endDate ?? '—',
+            totalCost: Number(r.totalCost ?? r.total ?? 0),
+          }))
+
+          // Actualizar resumen con valores reales
+          summary.value = {
+            title: 'Resumen de popularidad de habitación',
+            cards: [
+              { label: 'Habitación más popular', value: roomNumber !== '—' ? `${roomNumber}` : (reservations[0]?.roomId ?? '—') },
+              { label: 'Total alojamientos', value: reservations.length },
+              { label: 'Hotel', value: hotelName || 'Todos' },
+            ],
+          }
+        } catch (err:any) {
+          toast.error('No se pudo cargar el reporte de habitación más popular', { description: err?.message })
+          reportData.value.data = []
+        } finally {
+          reportLoading.value = false
         }
         break
       }
@@ -437,10 +539,10 @@ const cargarReporteActual = async () => {
           reportHeader: 'Restaurante más popular',
           reportSubheader: 'Listado de consumos del restaurante con más ingresos',
           columns: [
-            { field: 'restaurantId', header: 'Restaurante' },
-            { field: 'clientId', header: 'Cliente' },
-            { field: 'orderedAt', header: 'Fecha' },
-            { field: 'total', header: 'Total', render: (r:any) => r.total != null ? `Q ${r.total}` : '-' },
+            { field: 'restaurant', header: 'Restaurante' },
+            { field: 'clientCui', header: 'Cliente (CUI)' },
+            { field: 'items', header: 'Ítems' },
+            { field: 'total', header: 'Total', render: (r:any) => r.total != null ? formatGTQ(r.total) : '-' },
           ],
         }
         summary.value = {
@@ -449,8 +551,41 @@ const cargarReporteActual = async () => {
             { label: 'Restaurante más popular', value: null },
             { label: 'Ingresos totales', value: null },
             { label: 'Rango de fechas', value: (startDate.value && endDate.value) ? 'Aplicado' : '—' },
-            { label: 'Restaurante', value: (establishmentOptions.value.find(o => o.value === establishmentId.value)?.label) || (establishmentId.value || '—') },
           ],
+        }
+
+        reportLoading.value = true
+        try {
+          const res: any = await getMostPopularRestaurantReport()
+          const restaurantName = res?.restaurantName ?? '—'
+          const orders: any[] = Array.isArray(res?.orders) ? res.orders : []
+
+          // Map orders to table rows
+          reportData.value.data = orders.map((o: any, idx: number) => ({
+            orderId: o.id ?? String(idx + 1),
+            restaurant: restaurantName,
+            clientCui: o.clientCui ?? '—',
+            items: Array.isArray(o.items) && o.items.length
+              ? o.items.map((it: any) => `${Number(it.quantity ?? 0)} x ${it.name ?? it.dishId ?? ''}`).join(', ')
+              : '—',
+            total: Number(o.total ?? 0),
+          }))
+
+          const totalIncome = reportData.value.data.reduce((acc, r) => acc + (Number(r.total) || 0), 0)
+
+          summary.value = {
+            title: 'Resumen de popularidad de restaurante',
+            cards: [
+              { label: 'Restaurante más popular', value: restaurantName },
+              { label: 'Ingresos totales', value: formatGTQ(totalIncome) },
+              { label: 'Rango de fechas', value: (startDate.value && endDate.value) ? 'Aplicado' : '—' },
+            ],
+          }
+        } catch (err:any) {
+          toast.error('No se pudo cargar el reporte de restaurante más popular', { description: err?.message })
+          reportData.value.data = []
+        } finally {
+          reportLoading.value = false
         }
         break
       }
@@ -490,6 +625,9 @@ const recargarDatos = async () => {
   establishmentsLoading.value = false
   establishmentId.value = ''
   clientId.value = ''
+  popularHotelId.value = ''
+  popularHotelOptions.value = []
+  popularHotelsLoading.value = false
   // volvemos a cargar el reporte con filtros vacíos
   await cargarReporteActual();
 };

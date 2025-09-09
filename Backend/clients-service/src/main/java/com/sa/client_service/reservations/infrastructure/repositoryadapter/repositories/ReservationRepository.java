@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -21,6 +21,15 @@ public interface ReservationRepository extends JpaRepository<ReservationEntity, 
     );
 
     @Query("""
+           select r
+           from ReservationEntity r
+           where r.hotelId = :hotelId
+           group by r.roomId
+           order by count(r) desc
+           """)
+    List<ReservationEntity> findTopRoomsByHotel(UUID hotelId, Pageable pageable);
+
+    @Query("""
            select r.roomId
            from ReservationEntity r
            where r.hotelId = :hotelId
@@ -28,4 +37,13 @@ public interface ReservationRepository extends JpaRepository<ReservationEntity, 
            order by count(r) desc
            """)
     List<UUID> findTopRoomsByHotel(UUID hotelId);
+
+    @Query("""
+           select r
+           from ReservationEntity r
+           group by r.roomId
+           order by count(r) desc
+           """)
+    List<ReservationEntity> findTopRoomsGlobally(Pageable pageable);
+
 }

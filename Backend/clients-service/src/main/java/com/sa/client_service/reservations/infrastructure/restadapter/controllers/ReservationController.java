@@ -18,12 +18,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sa.client_service.reservations.application.dtos.CreateReservationDTO;
 import com.sa.client_service.reservations.application.dtos.FindReservationsDTO;
+import com.sa.client_service.reservations.application.dtos.MostPopularRoomDTO;
 import com.sa.client_service.reservations.application.inputports.CreateReservationInputPort;
 import com.sa.client_service.reservations.application.inputports.FindReservationByIdInputPort;
 import com.sa.client_service.reservations.application.inputports.FindReservationsInputPort;
+import com.sa.client_service.reservations.application.inputports.GetMostPopularRoomInputPort;
 import com.sa.client_service.reservations.application.inputports.MostPopularRoomsInputPort;
 import com.sa.client_service.reservations.domain.Reservation;
 import com.sa.client_service.reservations.infrastructure.restadapter.dtos.CreateReservationRequest;
+import com.sa.client_service.reservations.infrastructure.restadapter.dtos.MostPopularRoomResponse;
 import com.sa.client_service.reservations.infrastructure.restadapter.dtos.ReservationHydratedResponse;
 import com.sa.client_service.reservations.infrastructure.restadapter.dtos.ReservationResponse;
 import com.sa.client_service.reservations.infrastructure.restadapter.mappers.ReservationHydrationAssembler;
@@ -47,6 +50,7 @@ public class ReservationController {
     private final FindReservationsInputPort findReservationsInputPort;
     private final FindReservationByIdInputPort findReservationByIdInputPort;
     private final MostPopularRoomsInputPort mostPopularRoomsInputPort;
+    private final GetMostPopularRoomInputPort getMostPopularRoomInputPort;
     private final ReservationRestMapper reservationRestMapper;
     private final ReservationHydrationAssembler reservationHydrationAssembler;
 
@@ -133,5 +137,23 @@ public class ReservationController {
         List<UUID> result = mostPopularRoomsInputPort.handle(hotelId);
 
         return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @Operation(summary = "Obtener la habitacion mas popular", description = "Obtiene basado en las reservaciones, las habitaciones mas populares de un hotel.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Habitaciones obtenidas correctamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ReservationResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Parámetros inválidos", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content)
+    })
+    @GetMapping("/reports/most-popular-room")
+    public ResponseEntity<MostPopularRoomResponse> getMostPopularRoom(
+            @RequestParam(name = "hotelId", required = false) UUID hotelId
+            ) throws NotFoundException {
+
+        MostPopularRoomDTO result = getMostPopularRoomInputPort.handle(hotelId != null ? hotelId.toString() : null);
+
+        MostPopularRoomResponse response = reservationRestMapper.toResponse(result);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

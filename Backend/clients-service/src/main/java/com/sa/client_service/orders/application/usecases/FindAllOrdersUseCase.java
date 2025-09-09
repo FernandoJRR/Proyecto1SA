@@ -3,6 +3,7 @@ package com.sa.client_service.orders.application.usecases;
 import java.util.List;
 
 import com.sa.application.annotations.UseCase;
+import com.sa.client_service.orders.application.dtos.FindOrdersDTO;
 import com.sa.client_service.orders.application.inputports.FindAllOrdersInputPort;
 import com.sa.client_service.orders.application.outputports.FindAllOrdersOutputPort;
 import com.sa.client_service.orders.domain.Order;
@@ -16,8 +17,8 @@ public class FindAllOrdersUseCase implements FindAllOrdersInputPort {
     private final FindAllOrdersOutputPort findAllOrdersOutputPort;
 
     @Override
-    public List<Order> handle() {
-        return findAllOrdersOutputPort.findAll();
+    public List<Order> handle(FindOrdersDTO filter) {
+        return findAllOrdersOutputPort.findAll(filter);
     }
 
 }

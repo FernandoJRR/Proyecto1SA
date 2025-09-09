@@ -1,8 +1,10 @@
 package com.sa.client_service.orders.infrastructure.restadapter.controllers;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,15 +13,20 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sa.client_service.orders.application.dtos.CreateOrderDTO;
+import com.sa.client_service.orders.application.dtos.FindOrdersDTO;
+import com.sa.client_service.orders.application.dtos.MostPopularRestaurantDTO;
 import com.sa.client_service.orders.application.inputports.CreateOrderInputPort;
 import com.sa.client_service.orders.application.inputports.FindAllOrdersInputPort;
 import com.sa.client_service.orders.application.inputports.FindOrderByIdInputPort;
 import com.sa.client_service.orders.application.inputports.MostPopularDishesInputPort;
+import com.sa.client_service.orders.application.inputports.MostPopularRestaurantInputPort;
 import com.sa.client_service.orders.domain.Order;
 import com.sa.client_service.orders.infrastructure.restadapter.dtos.CreateOrderRequest;
+import com.sa.client_service.orders.infrastructure.restadapter.dtos.MostPopularRestaurantResponse;
 import com.sa.client_service.orders.infrastructure.restadapter.dtos.OrderHydratedResponse;
 import com.sa.client_service.orders.infrastructure.restadapter.dtos.OrderResponse;
 import com.sa.client_service.orders.infrastructure.restadapter.mappers.OrderHydrationAssembler;
@@ -44,6 +51,7 @@ public class OrderController {
     private final FindOrderByIdInputPort findOrderByIdInputPort;
     private final FindAllOrdersInputPort findAllOrdersInputPort;
     private final MostPopularDishesInputPort mostPopularDishesInputPort;
+    private final MostPopularRestaurantInputPort mostPopularRestaurantInputPort;
     private final OrderRestMapper orderRestMapper;
     private final OrderHydrationAssembler orderHydrationAssembler;
 
@@ -93,9 +101,18 @@ public class OrderController {
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
     @GetMapping({"","/"})
-    public ResponseEntity<List<OrderHydratedResponse>> getOrders() {
+    public ResponseEntity<List<OrderHydratedResponse>> getOrders(
+        @RequestParam(value = "fromDate", required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+        @RequestParam(value = "toDate", required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
+    ) {
+        FindOrdersDTO filter = FindOrdersDTO.builder()
+            .fromDate(fromDate)
+            .toDate(toDate)
+            .build();
 
-        List<Order> result = findAllOrdersInputPort.handle();
+        List<Order> result = findAllOrdersInputPort.handle(filter);
 
         List<OrderHydratedResponse> response = orderHydrationAssembler.toResponseList(result);
 
@@ -116,5 +133,22 @@ public class OrderController {
         List<UUID> result = mostPopularDishesInputPort.handle(restaurantId);
 
         return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @Operation(summary = "Obtener el restaurante mas popular", description = "Obtiene basado en las reservaciones, las habitaciones mas populares de un hotel.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Habitaciones obtenidas correctamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = MostPopularRestaurantResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Parámetros inválidos", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content)
+    })
+    @GetMapping("/reports/most-popular-restaurant")
+    public ResponseEntity<MostPopularRestaurantResponse> getMostPopularRoom(
+            ) throws NotFoundException {
+
+        MostPopularRestaurantDTO result = mostPopularRestaurantInputPort.handle();
+
+        MostPopularRestaurantResponse response = orderRestMapper.toResponse(result);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

@@ -22,12 +22,17 @@ import com.sa.finances_service.payments.application.dtos.FindPaymentsDTO;
 import com.sa.finances_service.payments.application.inputports.CreatePaymentInputPort;
 import com.sa.finances_service.payments.application.inputports.FindPaymentByIdInputPort;
 import com.sa.finances_service.payments.application.inputports.FindPaymentsInputPort;
+import com.sa.finances_service.payments.application.inputports.GetIncomeOutcomeInputPort;
 import com.sa.finances_service.payments.domain.Payment;
 import com.sa.finances_service.payments.infrastructure.restadapter.dtos.CreatePaymentRequest;
 import com.sa.finances_service.payments.infrastructure.restadapter.dtos.PaymentHydratedResponse;
 import com.sa.finances_service.payments.infrastructure.restadapter.dtos.PaymentResponse;
 import com.sa.finances_service.payments.infrastructure.restadapter.mappers.PaymentResponseAssembler;
 import com.sa.finances_service.payments.infrastructure.restadapter.mappers.PaymentRestMapper;
+import com.sa.finances_service.reports.application.dtos.IncomeOutcomeDTO;
+import com.sa.finances_service.reports.infrastructure.dtos.IncomeOutcomeResponse;
+import com.sa.finances_service.reports.infrastructure.dtos.OutcomeResponse;
+import com.sa.finances_service.reports.infrastructure.mappers.ReportRestMapper;
 import com.sa.shared.exceptions.NotFoundException;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,8 +51,10 @@ public class PaymentsController {
     private final CreatePaymentInputPort createPaymentInputPort;
     private final FindPaymentsInputPort findPaymentsInputPort;
     private final FindPaymentByIdInputPort findPaymentByIdInputPort;
+    private final GetIncomeOutcomeInputPort getIncomeOutcomeInputPort;
     private final PaymentRestMapper paymentRestMapper;
     private final PaymentResponseAssembler paymentResponseAssembler;
+    private final ReportRestMapper reportRestMapper;
 
     @Operation(summary = "Crear un nuevo pago", description = "Este endpoint permite la creación de un nuevo pago en el sistema.")
     @ApiResponses(value = {
@@ -119,5 +126,22 @@ public class PaymentsController {
         List<PaymentHydratedResponse> response = paymentResponseAssembler.toResponseList(result);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "Obtener reporte de ingresos y egresos", description = "Este endpoint permite la obtencion de el reporte de ingresos y egresos")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Reporte obtenido exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PaymentHydratedResponse.class))),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    @GetMapping("/reports/income-outcome")
+    public ResponseEntity<IncomeOutcomeResponse> getIncomeOutcomeReport(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate
+    ) throws NotFoundException {
+        IncomeOutcomeDTO result = getIncomeOutcomeInputPort.handle(fromDate, toDate);
+
+        IncomeOutcomeResponse response = reportRestMapper.toResponse(result);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }
