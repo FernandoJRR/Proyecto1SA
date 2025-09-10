@@ -1,5 +1,8 @@
 package com.sa.employee_service.employees.infrastructure.repositoryadapter.adapters;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.sa.employee_service.employees.application.outputports.CreatePermissionOutputPort;
 import com.sa.employee_service.employees.domain.Permission;
 import com.sa.employee_service.employees.infrastructure.repositoryadapter.mappers.PermissionRepositoryMapper;
@@ -17,6 +20,7 @@ public class CreatePermissionAdapter implements CreatePermissionOutputPort {
     private final PermissionRepositoryMapper permissionRepositoryMapper;
 
     @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public Permission createPermission(Permission permission) {
         PermissionEntity createdPermission = permissionRepository.save(permissionRepositoryMapper.toEntity(permission));
         return permissionRepositoryMapper.toDomain(createdPermission);

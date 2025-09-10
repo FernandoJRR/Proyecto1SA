@@ -2,6 +2,8 @@ package com.sa.employee_service.employees.infrastructure.repositoryadapter.adapt
 
 import java.util.List;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.sa.employee_service.employees.application.outputports.FindAllEmployeeTypesOutpurPort;
 import com.sa.employee_service.employees.domain.EmployeeType;
 import com.sa.employee_service.employees.infrastructure.repositoryadapter.mappers.EmployeeTypeRepositoryMapper;
@@ -19,6 +21,7 @@ public class FindAllEmployeeTypesAdapter implements FindAllEmployeeTypesOutpurPo
     private final EmployeeTypeRepositoryMapper employeeTypeRepositoryMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public List<EmployeeType> findAll() {
         List<EmployeeTypeEntity> entities = employeeTypeRepository.findAll();
         return employeeTypeRepositoryMapper.toDomain(entities);

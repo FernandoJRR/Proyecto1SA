@@ -2,6 +2,8 @@ package com.sa.employee_service.employees.infrastructure.repositoryadapter.adapt
 
 import java.util.Optional;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.sa.employee_service.employees.application.outputports.FindEmployeeByUsernameOutputPort;
 import com.sa.employee_service.employees.domain.Employee;
 import com.sa.employee_service.employees.infrastructure.repositoryadapter.mappers.EmployeeRepositoryMapper;
@@ -16,6 +18,8 @@ public class FindEmployeeByUsernameAdapter implements FindEmployeeByUsernameOutp
     private final EmployeeRepository employeeRepository;
     private final EmployeeRepositoryMapper employeeRepositoryMapper;
 
+    @Override
+    @Transactional(readOnly = true)
     public Optional<Employee> findEmployeeByUsername(String username) {
         return employeeRepository.findByUser_Username(username)
             .map(employeeRepositoryMapper::toDomain);

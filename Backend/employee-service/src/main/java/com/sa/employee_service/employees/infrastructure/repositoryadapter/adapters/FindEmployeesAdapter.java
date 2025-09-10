@@ -1,9 +1,9 @@
 package com.sa.employee_service.employees.infrastructure.repositoryadapter.adapters;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.sa.employee_service.employees.application.dtos.FindEmployeesDTO;
 import com.sa.employee_service.employees.application.outputports.FindEmployeesOutputPort;
@@ -23,6 +23,7 @@ public class FindEmployeesAdapter implements FindEmployeesOutputPort {
     private final EmployeeRepositoryMapper employeeRepositoryMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public List<Employee> findEmployees(FindEmployeesDTO filter) {
         Specification<EmployeeEntity> spec = Specification.where(null);
 
@@ -32,6 +33,10 @@ public class FindEmployeesAdapter implements FindEmployeesOutputPort {
 
         if (filter.getEstablishmentId() != null) {
             spec = spec.and((root, q, cb) -> cb.equal(root.get("establishmentId"), filter.getEstablishmentId()));
+        }
+
+        if (filter.getCui() != null) {
+            spec = spec.and((root, q, cb) -> cb.equal(root.get("cui"), filter.getCui()));
         }
 
         return employeeRepository.findAll(spec)

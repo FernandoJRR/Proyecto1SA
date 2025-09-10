@@ -2,7 +2,7 @@ package com.sa.employee_service.employees.infrastructure.repositoryadapter.adapt
 
 import java.util.List;
 
-import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.sa.employee_service.employees.application.outputports.FindAllEmployeesOutputPort;
 import com.sa.employee_service.employees.domain.Employee;
@@ -19,6 +19,8 @@ public class FindAllEmployeesAdapter implements FindAllEmployeesOutputPort {
     private final EmployeeRepository employeeRepository;
     private final EmployeeRepositoryMapper employeeRepositoryMapper;
 
+    @Override
+    @Transactional(readOnly = true)
     public List<Employee> findAllEmployees() {
         List<EmployeeEntity> employeesTemp = employeeRepository.findAll();
         return employeeRepositoryMapper.toDomain(employeesTemp);

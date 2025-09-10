@@ -4,6 +4,7 @@ import com.sa.employee_service.employees.application.outputports.CreateEmployeeO
 import com.sa.employee_service.employees.application.outputports.ExistsHotelByIdOutputPort;
 import com.sa.employee_service.employees.application.outputports.ExistsRestaurantByIdOutputPort;
 import com.sa.employee_service.employees.application.outputports.FindEmployeeTypeByIdOutputPort;
+import com.sa.employee_service.employees.application.outputports.FindEmployeesOutputPort;
 import com.sa.employee_service.users.application.inputports.CreateUserInputPort;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -77,6 +78,8 @@ public class EmployeesServiceTest {
         private ExistsHotelByIdOutputPort existsHotelByIdOutputPort;
         @Mock
         private ExistsRestaurantByIdOutputPort existsRestaurantByIdOutputPort;
+        @Mock
+        private FindEmployeesOutputPort findEmployeesOutputPort;
 
 
         private UserEntity user;
@@ -142,6 +145,7 @@ public class EmployeesServiceTest {
                 createEmployeeUseCase = new CreateEmployeeUseCase(
                     createEmployeeOutputPort,
                     findEmployeeTypeByIdOutputPort,
+                    findEmployeesOutputPort,
                     createUserService,
                     existsHotelByIdOutputPort,
                     existsRestaurantByIdOutputPort
@@ -176,6 +180,7 @@ public class EmployeesServiceTest {
             CreateEmployeeUseCase useCase = new CreateEmployeeUseCase(
                 createEmployeeOutputPort,
                 findEmployeeTypeByIdOutputPort,
+                findEmployeesOutputPort,
                 createUserService,
                 existsHotelByIdOutputPort,
                 existsRestaurantByIdOutputPort

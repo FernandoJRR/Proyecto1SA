@@ -14,4 +14,5 @@ import lombok.NoArgsConstructor;
 public class FindEmployeesDTO {
     private UUID employeeTypeId;
     private UUID establishmentId;
+    private String cui;
 }

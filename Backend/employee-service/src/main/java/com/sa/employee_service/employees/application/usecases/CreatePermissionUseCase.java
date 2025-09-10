@@ -1,5 +1,6 @@
 package com.sa.employee_service.employees.application.usecases;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import com.sa.application.annotations.UseCase;
@@ -19,7 +20,8 @@ public class CreatePermissionUseCase implements CreatePermissionInputPort {
 
     private final CreatePermissionOutputPort createPermissionOutputPort;
 
-    public Permission handle(CreatePermissionDTO createPermissionDTO) throws DuplicatedEntryException {
+    @Transactional
+    public Permission handle(@Valid CreatePermissionDTO createPermissionDTO) throws DuplicatedEntryException {
         Permission genPermission = Permission.create(createPermissionDTO.getName(), createPermissionDTO.getAction());
 
         return createPermissionOutputPort.createPermission(genPermission);
