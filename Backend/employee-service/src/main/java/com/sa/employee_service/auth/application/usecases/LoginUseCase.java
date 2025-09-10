@@ -8,18 +8,12 @@ import org.springframework.stereotype.Service;
 import com.sa.employee_service.auth.application.dtos.LoginDTO;
 import com.sa.employee_service.auth.application.inputports.LoginInputPort;
 import com.sa.employee_service.auth.application.outputports.GenerateJWTTokenOutputPort;
-import com.sa.employee_service.auth.infrastructure.restadapter.dtos.LoginResponse;
 import com.sa.employee_service.employees.application.inputports.FindEmployeeByUsernameInputPort;
 import com.sa.employee_service.employees.application.inputports.FindPermissionsActionsByUsernameInputPort;
 import com.sa.employee_service.employees.domain.Employee;
-import com.sa.employee_service.employees.infrastructure.restadapter.mappers.EmployeeMapper;
-import com.sa.employee_service.employees.infrastructure.restadapter.mappers.PermissionRestMapper;
 import com.sa.employee_service.shared.utils.PasswordEncoderUtil;
-import com.sa.employee_service.users.application.inputports.FindUserByUsernameInputPort;
-import com.sa.employee_service.users.application.inputports.ForUsersPort;
 import com.sa.employee_service.users.application.usecases.FindUserByUsernameUseCase;
 import com.sa.employee_service.users.domain.User;
-import com.sa.employee_service.users.infrastructure.repositoryadapter.models.UserEntity;
 import com.sa.shared.exceptions.NotFoundException;
 
 import jakarta.transaction.Transactional;
