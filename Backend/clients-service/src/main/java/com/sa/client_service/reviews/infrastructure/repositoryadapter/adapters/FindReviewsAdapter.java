@@ -45,6 +45,6 @@ public class FindReviewsAdapter implements FindReviewsOutputPort {
             .and(f.getSourceId() != null ?
                 (root, q, cb) -> cb.equal(root.get("sourceId"), f.getSourceId()) : null)
             .and(f.getClientId() != null ?
-                (root, q, cb) -> cb.equal(root.get("clientId"), f.getClientId()) : null);
+                (root, q, cb) -> cb.equal(root.get("client").get("id").as(String.class), f.getClientId().toString()) : null);
     }
 }

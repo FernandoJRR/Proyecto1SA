@@ -28,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional(rollbackOn = Exception.class)
-public class LoginService implements LoginInputPort {
+public class LoginUseCase implements LoginInputPort {
 
     private final FindUserByUsernameUseCase findUserByUsernameUseCase;
     private final FindEmployeeByUsernameInputPort findEmployeeByUsernameInputPort;

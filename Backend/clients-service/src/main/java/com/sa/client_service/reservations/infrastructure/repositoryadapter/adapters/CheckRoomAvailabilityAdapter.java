@@ -18,7 +18,7 @@ public class CheckRoomAvailabilityAdapter implements CheckRoomAvailabilityOutput
 
     @Override
     public boolean isAvailable(UUID hotelId, UUID roomId, LocalDate startDate, LocalDate endDate) {
-        boolean anyOverlap = reservationRepository.existsByHotelIdAndRoomIdAndStartDateLessThanAndEndDateGreaterThan(
+        boolean anyOverlap = reservationRepository.existsOverlappingReservation(
                 hotelId, roomId, startDate, endDate);
         return !anyOverlap;
     }

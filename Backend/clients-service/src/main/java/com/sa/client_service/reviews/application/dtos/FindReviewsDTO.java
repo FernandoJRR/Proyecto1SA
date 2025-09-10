@@ -17,4 +17,5 @@ public class FindReviewsDTO {
     private String establishmentType;
     private String sourceId;
     private UUID clientId;
+    private String clientCui;
 }

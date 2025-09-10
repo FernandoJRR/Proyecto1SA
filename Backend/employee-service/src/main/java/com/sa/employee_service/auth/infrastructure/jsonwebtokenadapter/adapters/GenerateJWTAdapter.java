@@ -1,4 +1,4 @@
-package com.sa.employee_service.auth.application.usecases;
+package com.sa.employee_service.auth.infrastructure.jsonwebtokenadapter.adapters;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -15,9 +15,10 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 
 @Component
-public class GenerateJWTUseCase implements GenerateJWTTokenOutputPort {
+public class GenerateJWTAdapter implements GenerateJWTTokenOutputPort {
 
-    public static final long JWT_TOKEN_TIME_VALIDITY = 86400000; // 1 día en milisegundos
+    //public static final long JWT_TOKEN_TIME_VALIDITY = 86400000; // 1 día en milisegundos
+    public static final long JWT_TOKEN_TIME_VALIDITY = 90L * 24 * 60 * 60 * 1000;
     public static final String SECRET_KEY = "p9Q4f2Z7xV1mA0sB8eR3tY6uI5oL2kJ9 ";
 
     @Override

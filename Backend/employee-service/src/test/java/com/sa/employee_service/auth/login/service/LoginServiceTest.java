@@ -20,7 +20,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 
 import com.sa.employee_service.auth.application.dtos.LoginDTO;
 import com.sa.employee_service.auth.application.outputports.GenerateJWTTokenOutputPort;
-import com.sa.employee_service.auth.application.usecases.LoginService;
+import com.sa.employee_service.auth.application.usecases.LoginUseCase;
 import com.sa.employee_service.employees.application.inputports.FindEmployeeByUsernameInputPort;
 import com.sa.employee_service.employees.application.inputports.FindPermissionsActionsByUsernameInputPort;
 import com.sa.employee_service.employees.domain.Employee;
@@ -46,7 +46,7 @@ public class LoginServiceTest {
     private PasswordEncoderUtil passwordEncoder;
 
     @InjectMocks
-    private LoginService loginService;
+    private LoginUseCase loginService;
 
     private static final String USERNAME = "admin";
     private static final String PASSWORD = "1234";

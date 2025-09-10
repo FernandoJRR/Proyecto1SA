@@ -71,8 +71,40 @@ public class ClientController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @Operation(summary = "Crear un nuevo cliente", description = "Este endpoint permite la creación de un nuevo cliente en el sistema.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Cliente creado exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ClientResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Solicitud inválida, usualmente por error en la validacion de parametros.", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    @PostMapping("/public")
+    public ResponseEntity<ClientResponse> createClientPublic(
+            @RequestBody CreateClientRequest request)
+            throws DuplicatedEntryException {
+
+        CreateClientDTO createHotelDTO = clientRestMapper.toDTO(request);
+
+        Client result = createClientInputPort.handle(createHotelDTO);
+
+        ClientResponse response = clientRestMapper.toResponse(result);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
     @GetMapping("/by-cui/{cui}")
     public ResponseEntity<ClientResponse> getClientByCui(
+            @PathVariable("cui") String cui)
+            throws NotFoundException {
+
+        Client result = findClientByCuiInputPort.handle(cui);
+
+        ClientResponse response = clientRestMapper.toResponse(result);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/public/by-cui/{cui}")
+    public ResponseEntity<ClientResponse> getClientByCuiPublic(
             @PathVariable("cui") String cui)
             throws NotFoundException {
 

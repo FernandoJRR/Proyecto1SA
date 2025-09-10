@@ -14,4 +14,6 @@ public class RoomDTO {
     private String number;
     private BigDecimal pricePerNight;
     private Integer capacity;
+    private String hotelId;
+    private String hotelName;
 }

@@ -19,7 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sa.client_service.reservations.application.dtos.CreateReservationDTO;
 import com.sa.client_service.reservations.application.dtos.FindReservationsDTO;
 import com.sa.client_service.reservations.application.dtos.MostPopularRoomDTO;
+import com.sa.client_service.reservations.application.dtos.RoomDTO;
 import com.sa.client_service.reservations.application.inputports.CreateReservationInputPort;
+import com.sa.client_service.reservations.application.inputports.FindAvailableRoomsInputPort;
 import com.sa.client_service.reservations.application.inputports.FindReservationByIdInputPort;
 import com.sa.client_service.reservations.application.inputports.FindReservationsInputPort;
 import com.sa.client_service.reservations.application.inputports.GetMostPopularRoomInputPort;
@@ -29,6 +31,7 @@ import com.sa.client_service.reservations.infrastructure.restadapter.dtos.Create
 import com.sa.client_service.reservations.infrastructure.restadapter.dtos.MostPopularRoomResponse;
 import com.sa.client_service.reservations.infrastructure.restadapter.dtos.ReservationHydratedResponse;
 import com.sa.client_service.reservations.infrastructure.restadapter.dtos.ReservationResponse;
+import com.sa.client_service.reservations.infrastructure.restadapter.dtos.RoomResponse;
 import com.sa.client_service.reservations.infrastructure.restadapter.mappers.ReservationHydrationAssembler;
 import com.sa.client_service.reservations.infrastructure.restadapter.mappers.ReservationRestMapper;
 import com.sa.shared.exceptions.InvalidParameterException;
@@ -51,6 +54,7 @@ public class ReservationController {
     private final FindReservationByIdInputPort findReservationByIdInputPort;
     private final MostPopularRoomsInputPort mostPopularRoomsInputPort;
     private final GetMostPopularRoomInputPort getMostPopularRoomInputPort;
+    private final FindAvailableRoomsInputPort findAvailableRoomsInputPort;
     private final ReservationRestMapper reservationRestMapper;
     private final ReservationHydrationAssembler reservationHydrationAssembler;
 
@@ -63,6 +67,26 @@ public class ReservationController {
     @PostMapping
     @PreAuthorize("hasAuthority('CREATE_RESERVATION')")
     public ResponseEntity<ReservationResponse> createReservation(
+            @RequestBody CreateReservationRequest request)
+            throws NotFoundException, InvalidParameterException {
+
+        CreateReservationDTO createReservationDTO = reservationRestMapper.toDTO(request);
+
+        Reservation result = createReservationInputPort.handle(createReservationDTO);
+
+        ReservationResponse response = reservationRestMapper.toResponse(result);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "Crear una nueva reservacion", description = "Este endpoint permite la creación de una nueva reservacion en el sistema.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Cliente creado exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ReservationResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Solicitud inválida, usualmente por error en la validacion de parametros.", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    @PostMapping("/public")
+    public ResponseEntity<ReservationResponse> createReservationPublic(
             @RequestBody CreateReservationRequest request)
             throws NotFoundException, InvalidParameterException {
 
@@ -105,6 +129,36 @@ public class ReservationController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @Operation(summary = "Listar reservaciones", description = "Obtiene una lista de reservaciones. Puede filtrar por hotel, habitación, cliente y rango de fechas (startDate/endDate).")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Listado obtenido correctamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ReservationResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Parámetros inválidos", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content)
+    })
+    @GetMapping("/public/by-cui/{clientCui}")
+    public ResponseEntity<List<ReservationHydratedResponse>> getReservationsPublic(
+            @PathVariable("clientCui") String clientCui,
+            @RequestParam(required = false) UUID hotelId,
+            @RequestParam(required = false) UUID roomId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate)
+            throws InvalidParameterException {
+
+        FindReservationsDTO query = FindReservationsDTO.builder()
+                .hotelId(hotelId)
+                .roomId(roomId)
+                .clientCui(clientCui)
+                .startDate(startDate)
+                .endDate(endDate)
+                .build();
+
+        List<Reservation> result = findReservationsInputPort.handle(query);
+
+        List<ReservationHydratedResponse> response = reservationHydrationAssembler.toResponseList(result);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
     @Operation(summary = "Obtener una reservacion por ID", description = "Obtiene una reservacion del sistema por su ID.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Reservacion obtenida correctamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ReservationResponse.class))),
@@ -113,6 +167,24 @@ public class ReservationController {
     })
     @GetMapping("/{reservationId}")
     public ResponseEntity<ReservationHydratedResponse> getReservation(
+            @PathVariable("reservationId") UUID reservationId)
+            throws NotFoundException {
+
+        Reservation result = findReservationByIdInputPort.handle(reservationId.toString());
+
+        ReservationHydratedResponse response = reservationHydrationAssembler.toResponse(result);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @Operation(summary = "Obtener una reservacion por ID", description = "Obtiene una reservacion del sistema por su ID.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Reservacion obtenida correctamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ReservationResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Parámetros inválidos", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content)
+    })
+    @GetMapping("/public/{reservationId}")
+    public ResponseEntity<ReservationHydratedResponse> getReservationPublic(
             @PathVariable("reservationId") UUID reservationId)
             throws NotFoundException {
 
@@ -153,6 +225,26 @@ public class ReservationController {
         MostPopularRoomDTO result = getMostPopularRoomInputPort.handle(hotelId != null ? hotelId.toString() : null);
 
         MostPopularRoomResponse response = reservationRestMapper.toResponse(result);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @Operation(summary = "Obtener habitaciones disponibles en un periodo de tiempo", description = "Obtiene usando una fecha de inicio y una de final las habitaciones disponibles")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Habitaciones obtenidas correctamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ReservationResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Parámetros inválidos", content = @Content),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content)
+    })
+    @GetMapping("/public/availability")
+    public ResponseEntity<List<RoomResponse>> getAvailableRooms(
+            @RequestParam(name = "hotelId", required = false) UUID hotelId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+            ) throws NotFoundException {
+
+        List<RoomDTO> result = findAvailableRoomsInputPort.handle(hotelId != null ? hotelId.toString():null, startDate, endDate);
+
+        List<RoomResponse> response = reservationRestMapper.toResponseList(result);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

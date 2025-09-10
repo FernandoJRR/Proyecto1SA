@@ -26,11 +26,19 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeExchange(ex -> ex
-                      .pathMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**",
-                                    "/employee-service/v3/api-docs", "/establishment-service/v3/api-docs")
-                      .permitAll()
-                      .anyExchange().permitAll()
-                )
+                        // .pathMatchers("/public/**").permitAll()
+                        .pathMatchers(
+                                "/swagger-ui/**",
+                                "/public",
+                                "/public/**",
+                                "/api/v1/hotels/public",
+                                "/api/v1/hotels/public/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/employee-service/v3/api-docs",
+                                "/establishment-service/v3/api-docs")
+                        .permitAll()
+                        .anyExchange().permitAll())
                 .build();
     }
 
@@ -50,7 +58,7 @@ public class SecurityConfig {
         configuration.setAllowedHeaders(List.of("*"));
 
         // permite cookies y credenciales
-//        configuration.setAllowCredentials(true);
+        // configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 

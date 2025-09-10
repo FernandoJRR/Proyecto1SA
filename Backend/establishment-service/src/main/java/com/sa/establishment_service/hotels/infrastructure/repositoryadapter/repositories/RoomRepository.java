@@ -11,4 +11,17 @@ public interface RoomRepository extends JpaRepository<RoomEntity, String> {
     boolean existsByHotel_IdAndNumber(String hotelId, String number);
     Optional<RoomEntity> findOneByHotel_IdAndId(String hotelId, String id);
     List<RoomEntity> findAllByHotel_Id(String hotelId);
+
+    List<RoomWithHotelId> findAllProjectedBy();
+
+    interface RoomWithHotelId {
+        String getId();
+        String getNumber();
+        String getStatus();      // or getStatus() returning RoomStatusEnum
+        String getPricePerNight();
+        int getCapacity();
+        String getHotelId();     // nested property via hotel.id
+        String getHotelName();     // nested property via hotel.id
+    }
+
 }

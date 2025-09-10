@@ -7,10 +7,12 @@ import org.mapstruct.Mapping;
 
 import com.sa.client_service.reservations.application.dtos.CreateReservationDTO;
 import com.sa.client_service.reservations.application.dtos.MostPopularRoomDTO;
+import com.sa.client_service.reservations.application.dtos.RoomDTO;
 import com.sa.client_service.reservations.domain.Reservation;
 import com.sa.client_service.reservations.infrastructure.restadapter.dtos.CreateReservationRequest;
 import com.sa.client_service.reservations.infrastructure.restadapter.dtos.MostPopularRoomResponse;
 import com.sa.client_service.reservations.infrastructure.restadapter.dtos.ReservationResponse;
+import com.sa.client_service.reservations.infrastructure.restadapter.dtos.RoomResponse;
 
 @Mapper(componentModel = "spring")
 public interface ReservationRestMapper {
@@ -20,4 +22,7 @@ public interface ReservationRestMapper {
     public List<ReservationResponse> toResponse(List<Reservation> reservations);
 
     public MostPopularRoomResponse toResponse(MostPopularRoomDTO dto);
+
+    public RoomResponse toResponse(RoomDTO dto);
+    public List<RoomResponse> toResponseList(List<RoomDTO> dto);
 }

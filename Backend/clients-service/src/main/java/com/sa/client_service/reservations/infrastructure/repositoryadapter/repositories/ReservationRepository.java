@@ -13,37 +13,50 @@ import com.sa.client_service.reservations.infrastructure.repositoryadapter.model
 
 public interface ReservationRepository extends JpaRepository<ReservationEntity, String>,
         JpaSpecificationExecutor<ReservationEntity> {
-    public boolean existsByHotelIdAndRoomIdAndStartDateLessThanAndEndDateGreaterThan(
+    public boolean existsByHotelIdAndRoomIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
             UUID hotelId,
             UUID roomId,
             LocalDate requestedEnd,
-            LocalDate requestedStart
-    );
+            LocalDate requestedStart);
 
     @Query("""
-           select r
-           from ReservationEntity r
-           where r.hotelId = :hotelId
-           group by r.roomId
-           order by count(r) desc
-           """)
+              select (count(r) > 0)
+              from ReservationEntity r
+              where r.hotelId = :hotelId
+                and r.roomId  = :roomId
+                and (
+                     r.startDate between :startDate and :endDate
+                  or r.endDate   between :startDate and :endDate
+                  or (r.startDate <= :startDate and r.endDate >= :endDate)
+                )
+            """)
+    boolean existsOverlappingReservation(UUID hotelId, UUID roomId,
+            LocalDate startDate, LocalDate endDate);
+
+    @Query("""
+            select r
+            from ReservationEntity r
+            where r.hotelId = :hotelId
+            group by r.roomId
+            order by count(r) desc
+            """)
     List<ReservationEntity> findTopRoomsByHotel(UUID hotelId, Pageable pageable);
 
     @Query("""
-           select r.roomId
-           from ReservationEntity r
-           where r.hotelId = :hotelId
-           group by r.roomId
-           order by count(r) desc
-           """)
+            select r.roomId
+            from ReservationEntity r
+            where r.hotelId = :hotelId
+            group by r.roomId
+            order by count(r) desc
+            """)
     List<UUID> findTopRoomsByHotel(UUID hotelId);
 
     @Query("""
-           select r
-           from ReservationEntity r
-           group by r.roomId
-           order by count(r) desc
-           """)
+            select r
+            from ReservationEntity r
+            group by r.roomId
+            order by count(r) desc
+            """)
     List<ReservationEntity> findTopRoomsGlobally(Pageable pageable);
 
 }

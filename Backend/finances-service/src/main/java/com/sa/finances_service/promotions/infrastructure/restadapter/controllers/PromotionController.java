@@ -148,6 +148,26 @@ public class PromotionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @Operation(summary = "Obtiene si una reservacion es elegible para alguna promocion", description = "Este endpoint permite la obtencion de una promocion para una reservacion si alguna fuera aplicable")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Promocion obtenida exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PromotionResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Promocion aplicable no encontrada", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    @PostMapping("/public/eligibility/reservation")
+    public ResponseEntity<PromotionResponse> getEligibilityReservationPublic(
+            @RequestBody FindReservationEligibilityRequest request)
+            throws NotFoundException {
+
+        FindReservationEligibilityDTO dto = promotionsRestMapper.toDTO(request);
+
+        Promotion result = findEligiblePromotionReservationInputPort.handle(dto);
+
+        PromotionResponse response = promotionsRestMapper.toResponse(result);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
     @Operation(summary = "Obtiene si una orden es elegible para alguna promocion", description = "Este endpoint permite la obtencion de una promocion para una orden si alguna fuera aplicable")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Promocion obtenida exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = PromotionResponse.class))),

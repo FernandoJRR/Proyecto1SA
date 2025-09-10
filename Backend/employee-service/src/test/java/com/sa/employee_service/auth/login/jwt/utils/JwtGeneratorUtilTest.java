@@ -5,7 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.Test;
 
-import com.sa.employee_service.auth.application.usecases.GenerateJWTUseCase;
+import com.sa.employee_service.auth.infrastructure.jsonwebtokenadapter.adapters.GenerateJWTAdapter;
 import com.sa.employee_service.users.domain.User;
 import static org.mockito.Mockito.*;
 
@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class JwtGeneratorUtilTest {
 
-    private final GenerateJWTUseCase jwtGeneratorUtil = new GenerateJWTUseCase();
+    private final GenerateJWTAdapter jwtGeneratorUtil = new GenerateJWTAdapter();
 
     @Test
     public void generateTokenShouldContainCorrectClaims() {
@@ -34,7 +34,7 @@ public class JwtGeneratorUtilTest {
 
         // Decodificar el token
         Claims claims = Jwts.parser()
-                .setSigningKey(GenerateJWTUseCase.SECRET_KEY.getBytes())
+                .setSigningKey(GenerateJWTAdapter.SECRET_KEY.getBytes())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();

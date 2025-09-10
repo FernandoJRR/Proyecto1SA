@@ -8,17 +8,25 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.client.RestClient;
 
+import com.sa.infrastructure.jwtadapter.ServiceTokenProvider;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 
 @Configuration
 public class RestClientConfig {
+    private final ServiceTokenProvider serviceTokenProvider;
+
+    public RestClientConfig(ServiceTokenProvider serviceTokenProvider) {
+        this.serviceTokenProvider = serviceTokenProvider;
+    }
 
     @Bean
     public RestClient restClient(RestClient.Builder builder) {
         return builder
                 .requestInterceptor((request, body, execution) -> {
-                    String jwt = JwtFilter.getCurrentToken();
+                    String jwt = serviceTokenProvider.getToken()
+                        .orElse(JwtFilter.getCurrentToken());
                     if (jwt != null) {
                         request.getHeaders().set(HttpHeaders.AUTHORIZATION, "Bearer " + jwt);
                     }

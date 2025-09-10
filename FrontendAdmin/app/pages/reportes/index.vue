@@ -56,7 +56,7 @@
 
     <!-- Buttons -->
     <div class="flex flex-wrap gap-3 mt-4">
-      <Button icon="pi pi-file-pdf" label="Exportar PDF" @click="exportReports" rounded outlined />
+      <Button icon="pi pi-file-pdf" label="Exportar PDF" @click="exportReports" rounded outlined :disabled="!canExport" />
       <Button icon="pi pi-search" label="Filtrar" @click="filtrar" rounded outlined severity="info" />
       <Button icon="pi pi-refresh" label="Quitar Filtros" @click="recargarDatos" rounded outlined severity="help" />
     </div>
@@ -111,6 +111,7 @@ import { getIncomeClientReport } from '~/lib/api/reportes/reporte';
 import { getIncomeOutcomeReport } from '~/lib/api/reportes/reporte';
 import { getMostPopularRoomReport } from '~/lib/api/reportes/reporte';
 import { getMostPopularRestaurantReport } from '~/lib/api/reportes/reporte';
+import { exportEstablishmentIncomePDF, exportClientActivityPDF, exportIncomeOutcomePDF, exportMostPopularRoomPDF, exportMostPopularRestaurantPDF } from '~/lib/api/reportes/reporte';
 import { getAllHotels } from '~/lib/api/establishments/hotels'
 import { getAllRestaurants } from '~/lib/api/establishments/restaurants'
 
@@ -206,6 +207,21 @@ const tableConfig = ref<{ dataKey: string; reportHeader: string; reportSubheader
 /** Data del reporte */
 const reportData = ref<{ data: any[] }>({ data: [] })
 const reportLoading = ref(false)
+const profitTotals = ref<null | { income: number; outcome: number; hotels: number; restaurants: number }>(null)
+const mostPopularRoomMeta = ref<null | { hotelName: string; roomNumber: string }>(null)
+const mostPopularRestaurantMeta = ref<null | { restaurantName: string }>(null)
+const canExport = computed(() => {
+  if (reportLoading.value) return false
+  const hasData = Array.isArray(reportData.value.data) && reportData.value.data.length > 0
+  if (!hasData) return false
+  return (
+    reportType.value === 'ESTABLISHMENT_INCOME' ||
+    reportType.value === 'CLIENT_ACTIVITY' ||
+    reportType.value === 'PROFIT_REPORT' ||
+    reportType.value === 'MOST_POPULAR_ROOM' ||
+    reportType.value === 'MOST_POPULAR_RESTAURANT'
+  )
+})
 
 function formatGTQ(v: number | null | undefined) {
   if (v === null || v === undefined || isNaN(Number(v))) return '—'
@@ -233,6 +249,9 @@ const cargarReporteActual = async () => {
     // Reset base data
     reportData.value.data = []
     summary.value = null
+    profitTotals.value = null
+    mostPopularRoomMeta.value = null
+    mostPopularRestaurantMeta.value = null
 
     switch (reportType.value) {
       case 'ESTABLISHMENT_INCOME': {
@@ -323,9 +342,6 @@ const cargarReporteActual = async () => {
           reportSubheader: 'Listado de ingresos (alojamientos y consumos) del cliente en el rango seleccionado',
           columns: [
             { field: 'date', header: 'Fecha' },
-            { field: 'type', header: 'Tipo (Alojamiento/Consumo)' },
-            { field: 'establishmentId', header: 'Establecimiento' },
-            { field: 'document', header: 'Documento' },
             { field: 'amount', header: 'Monto', render: (r:any) => r.amount != null ? formatGTQ(r.amount) : '-' },
           ],
         }
@@ -453,6 +469,8 @@ const cargarReporteActual = async () => {
           const outcomeRestaurants = Number(res?.outcome?.totalOutcomeRestaurants ?? 0)
           const net = totalIncome - totalOutcome
 
+          profitTotals.value = { income: totalIncome, outcome: totalOutcome, hotels: outcomeHotels, restaurants: outcomeRestaurants }
+
           summary.value = {
             title: 'Resumen de ganancias',
             cards: [
@@ -524,6 +542,8 @@ const cargarReporteActual = async () => {
               { label: 'Hotel', value: hotelName || 'Todos' },
             ],
           }
+
+          mostPopularRoomMeta.value = { hotelName: hotelName || '—', roomNumber: String(roomNumber ?? '—') }
         } catch (err:any) {
           toast.error('No se pudo cargar el reporte de habitación más popular', { description: err?.message })
           reportData.value.data = []
@@ -581,6 +601,8 @@ const cargarReporteActual = async () => {
               { label: 'Rango de fechas', value: (startDate.value && endDate.value) ? 'Aplicado' : '—' },
             ],
           }
+
+          mostPopularRestaurantMeta.value = { restaurantName }
         } catch (err:any) {
           toast.error('No se pudo cargar el reporte de restaurante más popular', { description: err?.message })
           reportData.value.data = []
@@ -610,7 +632,65 @@ watch(reportType, async () => {
 
 const exportReports = async () => {
   try {
-    toast.info('Exportación en construcción', { description: 'Cuando el backend esté listo, este botón exportará el PDF del reporte actual.' })
+    if (!reportData.value.data?.length) {
+      toast.info('Calcula el reporte antes de exportar')
+      return
+    }
+
+    if (reportType.value === 'ESTABLISHMENT_INCOME') {
+      const establishmentLabel = (establishmentOptions.value.find(o => o.value === establishmentId.value)?.label) || establishmentId.value || 'Establecimiento'
+      await exportEstablishmentIncomePDF(reportData.value.data as any, {
+        establishmentLabel,
+        establishmentId: establishmentId.value,
+        startDate: startDate.value,
+        endDate: endDate.value,
+      })
+      return
+    }
+
+    if (reportType.value === 'CLIENT_ACTIVITY') {
+      const establishmentLabel = establishmentId.value
+        ? ((establishmentOptions.value.find(o => o.value === establishmentId.value)?.label) || establishmentId.value)
+        : 'Todos'
+      await exportClientActivityPDF(reportData.value.data as any, {
+        clientId: clientId.value || '—',
+        establishmentLabel,
+        startDate: startDate.value,
+        endDate: endDate.value,
+      })
+      return
+    }
+
+    if (reportType.value === 'PROFIT_REPORT') {
+      await exportIncomeOutcomePDF(reportData.value.data as any, {
+        startDate: startDate.value,
+        endDate: endDate.value,
+        totalIncome: profitTotals.value?.income ?? null,
+        totalOutcome: profitTotals.value?.outcome ?? null,
+        outcomeHotels: profitTotals.value?.hotels ?? null,
+        outcomeRestaurants: profitTotals.value?.restaurants ?? null,
+      })
+      return
+    }
+
+    if (reportType.value === 'MOST_POPULAR_ROOM') {
+      await exportMostPopularRoomPDF(reportData.value.data as any, {
+        hotelName: mostPopularRoomMeta.value?.hotelName,
+        roomNumber: mostPopularRoomMeta.value?.roomNumber,
+      })
+      return
+    }
+
+    if (reportType.value === 'MOST_POPULAR_RESTAURANT') {
+      await exportMostPopularRestaurantPDF(reportData.value.data as any, {
+        restaurantName: mostPopularRestaurantMeta.value?.restaurantName,
+        startDate: startDate.value,
+        endDate: endDate.value,
+      })
+      return
+    }
+
+    toast.info('Exportación aún no disponible para este reporte')
   } catch (error:any) {
     toast.error('Error', { description: `${(error.message)}` })
   }

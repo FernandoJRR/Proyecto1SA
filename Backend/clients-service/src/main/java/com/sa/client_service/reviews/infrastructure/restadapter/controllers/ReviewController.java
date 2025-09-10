@@ -2,6 +2,7 @@ package com.sa.client_service.reviews.infrastructure.restadapter.controllers;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -51,8 +52,7 @@ public class ReviewController {
             @ApiResponse(responseCode = "400", description = "Solicitud inválida, usualmente por error en la validacion de parametros.", content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
     })
-    @PostMapping
-    @PreAuthorize("hasAuthority('CREATE_REVIEW')")
+    @PostMapping("/public")
     public ResponseEntity<ReviewResponse> createClient(
             @RequestBody CreateReviewRequest request)
             throws NotFoundException, InvalidParameterException {
@@ -74,13 +74,40 @@ public class ReviewController {
     })
     @GetMapping({ "", "/" })
     public ResponseEntity<List<ReviewResponse>> searchReviews(
+            @RequestParam(required = false) String clientCui,
             @RequestParam(required = false) String establishmentId,
             @RequestParam(required = false) String establishmentType,
             @RequestParam(required = false) String sourceId) {
         FindReviewsDTO dto = FindReviewsDTO
                 .builder().establishmentId(establishmentId)
                 .establishmentType(establishmentType)
-                .sourceId(sourceId).build();
+                .sourceId(sourceId).clientCui(clientCui).build();
+
+        List<Review> result = findReviewsInputPort.handle(dto);
+
+        List<ReviewResponse> response = result.stream()
+                .map(reviewRestMapper::toResponse)
+                .toList();
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @Operation(summary = "Buscar reviews filtradas", description = "Obtiene reviews que coinciden con los criterios de búsqueda proporcionados.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Reviews encontradas", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ReviewResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Error en los parámetros de filtro"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    @GetMapping({"/public/search" })
+    public ResponseEntity<List<ReviewResponse>> searchReviewsPublic(
+            @RequestParam(required = false) String clientCui,
+            @RequestParam(required = false) String establishmentId,
+            @RequestParam(required = false) String establishmentType,
+            @RequestParam(required = false) String sourceId) {
+        FindReviewsDTO dto = FindReviewsDTO
+                .builder().establishmentId(establishmentId)
+                .establishmentType(establishmentType)
+                .sourceId(sourceId).clientCui(clientCui).build();
 
         List<Review> result = findReviewsInputPort.handle(dto);
 
