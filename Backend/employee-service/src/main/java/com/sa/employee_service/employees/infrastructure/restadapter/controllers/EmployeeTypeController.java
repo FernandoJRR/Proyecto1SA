@@ -1,34 +1,25 @@
 package com.sa.employee_service.employees.infrastructure.restadapter.controllers;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sa.employee_service.employees.application.inputports.ForEmployeeTypePort;
-import com.sa.employee_service.employees.infrastructure.repositoryadapter.models.EmployeeTypeEntity;
-import com.sa.employee_service.employees.infrastructure.repositoryadapter.models.PermissionEntity;
-import com.sa.employee_service.employees.infrastructure.restadapter.dtos.SaveEmployeeTypeRequestDTO;
-import com.sa.employee_service.employees.infrastructure.restadapter.mappers.EmployeeTypeMapper;
-import com.sa.employee_service.employees.infrastructure.restadapter.mappers.PermissionMapper;
-import com.sa.shared.exceptions.DuplicatedEntryException;
+import com.sa.employee_service.employees.application.inputports.FindAllEmployeeTypesInputPort;
+import com.sa.employee_service.employees.application.inputports.FindEmployeeTypeByIdInputPort;
+import com.sa.employee_service.employees.domain.EmployeeType;
+import com.sa.employee_service.employees.infrastructure.restadapter.mappers.EmployeeTypeRestMapper;
 import com.sa.shared.exceptions.NotFoundException;
 import com.sa.employee_service.shared.infrastructure.dtos.EmployeeTypeResponseDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -37,9 +28,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EmployeeTypeController {
 
-        private final ForEmployeeTypePort employeeTypePort;
-        private final EmployeeTypeMapper employeeTypeMapper;
-        private final PermissionMapper permissionMapper;
+        private final EmployeeTypeRestMapper employeeTypeRestMapper;
+        private final FindEmployeeTypeByIdInputPort findEmployeeTypeByIdInputPort;
+        private final FindAllEmployeeTypesInputPort findAllEmployeeTypesInputPort;
 
         @Operation(summary = "Obtener todos los tipos de empleados", description = "Devuelve la lista de los typos de empleados existentes.")
         @ApiResponses(value = {
@@ -51,11 +42,10 @@ public class EmployeeTypeController {
         public List<EmployeeTypeResponseDTO> getEmployeesTypes() {
 
                 // mandar a crear el employee al port
-                List<EmployeeTypeEntity> result = employeeTypePort.findAllEmployeesTypes();
+                List<EmployeeType> result = findAllEmployeeTypesInputPort.handle();
 
                 // convertir el Employee al dto
-                List<EmployeeTypeResponseDTO> response = employeeTypeMapper
-                                .fromEmployeeTypeListToEmployeeTypeResponseDtoList(result);
+                List<EmployeeTypeResponseDTO> response = employeeTypeRestMapper.toResponse(result);
 
                 return response;
         }
@@ -72,10 +62,11 @@ public class EmployeeTypeController {
                         @PathVariable("employeeTypeId") String employeeTypeId) throws NotFoundException {
 
                 // mandar a busar por el id
-                EmployeeTypeEntity result = employeeTypePort.findEmployeeTypeById(employeeTypeId);
+                EmployeeType result = findEmployeeTypeByIdInputPort.handle(UUID.fromString(employeeTypeId))
+                    .orElseThrow(() -> new NotFoundException("El tipo de empleado buscado no existe"));
 
                 // convertir el employee type al dto
-                EmployeeTypeResponseDTO response = employeeTypeMapper.fromEmployeeTypeToEmployeeTypeResponseDto(result);
+                EmployeeTypeResponseDTO response = employeeTypeRestMapper.toResponse(result);
                 return response;
         }
 

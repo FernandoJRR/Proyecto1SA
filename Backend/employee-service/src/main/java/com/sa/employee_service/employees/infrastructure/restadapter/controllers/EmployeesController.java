@@ -1,15 +1,11 @@
 package com.sa.employee_service.employees.infrastructure.restadapter.controllers;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,30 +20,12 @@ import com.sa.employee_service.employees.application.inputports.FindAllEmployees
 import com.sa.employee_service.employees.application.inputports.FindEmployeeByIdInputPort;
 import com.sa.employee_service.employees.application.inputports.FindEmployeeByUsernameInputPort;
 import com.sa.employee_service.employees.application.inputports.FindEmployeesByTypeInputPort;
-import com.sa.employee_service.employees.application.inputports.ForEmployeesPort;
 import com.sa.employee_service.employees.domain.Employee;
-import com.sa.employee_service.employees.infrastructure.repositoryadapter.models.EmployeeEntity;
-import com.sa.employee_service.employees.infrastructure.repositoryadapter.models.EmployeeHistory;
-import com.sa.employee_service.employees.infrastructure.repositoryadapter.models.EmployeeTypeEntity;
-import com.sa.employee_service.employees.infrastructure.repositoryadapter.models.HistoryType;
-import com.sa.employee_service.employees.infrastructure.restadapter.dtos.CompoundEmployeeResponseDTO;
 import com.sa.employee_service.employees.infrastructure.restadapter.dtos.CreateEmployeeRequest;
-import com.sa.employee_service.employees.infrastructure.restadapter.dtos.EmployeeDeactivateRequestDTO;
-import com.sa.employee_service.employees.infrastructure.restadapter.dtos.EmployeeHistoryResponseDTO;
-import com.sa.employee_service.employees.infrastructure.restadapter.dtos.EmployeeReactivateRequestDTO;
-import com.sa.employee_service.employees.infrastructure.restadapter.dtos.EmployeeRequestDTO;
-import com.sa.employee_service.employees.infrastructure.restadapter.dtos.EmployeeSalaryRequestDTO;
-import com.sa.employee_service.employees.infrastructure.restadapter.mappers.EmployeeHistoryMapper;
-import com.sa.employee_service.employees.infrastructure.restadapter.mappers.EmployeeMapper;
 import com.sa.employee_service.employees.infrastructure.restadapter.mappers.EmployeeResponseMapper;
 import com.sa.employee_service.employees.infrastructure.restadapter.mappers.EmployeeRestMapper;
-import com.sa.employee_service.employees.infrastructure.restadapter.mappers.EmployeeTypeMapper;
-import com.sa.employee_service.employees.infrastructure.restadapter.mappers.HistoryTypeMapper;
-import com.sa.employee_service.users.infrastructure.repositoryadapter.models.UserEntity;
-import com.sa.employee_service.users.infrastructure.restadapter.mappers.UserMapper;
 import com.sa.shared.exceptions.DuplicatedEntryException;
 import com.sa.shared.exceptions.InvalidParameterException;
-import com.sa.shared.exceptions.InvalidPeriodException;
 import com.sa.shared.exceptions.NotFoundException;
 import com.sa.employee_service.shared.infrastructure.dtos.EmployeeResponseDTO;
 
@@ -57,8 +35,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -71,7 +47,6 @@ public class EmployeesController {
     private final FindEmployeeByIdInputPort findEmployeeByIdInputPort;
     private final FindAllEmployeesInputPort findAllEmployeesInputPort;
     private final FindEmployeeByUsernameInputPort findEmployeeByUsernameInputPort;
-    private final FindEmployeesByTypeInputPort findEmployeesByTypeInputPort;
 
     private final EmployeeRestMapper employeeRestMapper;
     private final EmployeeResponseMapper employeeResponseMapper;

@@ -1,5 +1,6 @@
 package com.sa.employee_service.employees.infrastructure.repositoryadapter.mappers;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.mapstruct.Mapper;
@@ -11,4 +12,5 @@ import com.sa.employee_service.employees.infrastructure.repositoryadapter.models
 public interface EmployeeTypeRepositoryMapper {
     public EmployeeTypeEntity toEntity(EmployeeType employeeType);
     public EmployeeType toDomain(EmployeeTypeEntity employeeTypeEntity);
+    public List<EmployeeType> toDomain(List<EmployeeTypeEntity> employeeTypeEntity);
 }

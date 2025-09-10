@@ -14,29 +14,16 @@ import com.sa.employee_service.employees.application.dtos.CreateEmployeeDTO;
 import com.sa.employee_service.employees.application.dtos.CreatePermissionDTO;
 import com.sa.employee_service.employees.application.inputports.CreateEmployeeInputPort;
 import com.sa.employee_service.employees.application.inputports.CreatePermissionInputPort;
-import com.sa.employee_service.employees.application.inputports.ForEmployeeTypePort;
-import com.sa.employee_service.employees.application.inputports.ForEmployeesPort;
-import com.sa.employee_service.employees.application.inputports.ForPermissionsPort;
 import com.sa.employee_service.employees.domain.EmployeeType;
 import com.sa.employee_service.employees.domain.Permission;
 import com.sa.employee_service.employees.domain.enums.SystemPermissionEnum;
 import com.sa.employee_service.employees.infrastructure.repositoryadapter.mappers.PermissionRepositoryMapper;
-import com.sa.employee_service.employees.infrastructure.repositoryadapter.models.EmployeeEntity;
-import com.sa.employee_service.employees.infrastructure.repositoryadapter.models.EmployeeHistory;
 import com.sa.employee_service.employees.infrastructure.repositoryadapter.models.EmployeeTypeEntity;
-import com.sa.employee_service.employees.infrastructure.repositoryadapter.models.HistoryType;
-import com.sa.employee_service.employees.infrastructure.repositoryadapter.models.PaymentType;
 import com.sa.employee_service.employees.infrastructure.repositoryadapter.models.PermissionEntity;
-import com.sa.employee_service.employees.infrastructure.repositoryadapter.repositories.EmployeeRepository;
 import com.sa.employee_service.employees.infrastructure.repositoryadapter.repositories.EmployeeTypeRepository;
-import com.sa.employee_service.employees.infrastructure.repositoryadapter.repositories.HistoryTypeRepository;
-import com.sa.employee_service.employees.infrastructure.repositoryadapter.repositories.PaymentTypeRepository;
 import com.sa.employee_service.employees.infrastructure.repositoryadapter.repositories.PermissionRepository;
 import com.sa.employee_service.shared.domain.enums.EmployeeTypeEnum;
-import com.sa.employee_service.shared.utils.PasswordEncoderUtil;
 import com.sa.employee_service.users.application.dtos.CreateUserDTO;
-import com.sa.employee_service.users.infrastructure.repositoryadapter.models.UserEntity;
-import com.sa.employee_service.users.infrastructure.repositoryadapter.repositories.UserRepository;
 import com.sa.shared.dtos.IdRequestDTO;
 
 import jakarta.transaction.Transactional;
@@ -47,20 +34,13 @@ import lombok.RequiredArgsConstructor;
 @Component
 public class SeedersConfig implements CommandLineRunner {
 
-	private final ForPermissionsPort forPermissionsPort;
-	private final ForEmployeesPort forEmployeesPort;
 	private final CreateEmployeeInputPort createEmployeeInputPort;
     private final CreatePermissionInputPort createPermissionInputPort;
     private final PermissionRepositoryMapper permissionRepositoryMapper;
 
 	private final PermissionRepository permissionRepository;
-	private final UserRepository userRepository;
-	private final PaymentTypeRepository paymentTypeRepository;
 	//private final ParameterRepository parameterRepository;
 	private final EmployeeTypeRepository employeeTypeRepository;
-	private final EmployeeRepository employeeRepository;
-	private final HistoryTypeRepository historyTypeRepository;
-	private final PasswordEncoderUtil passwordEncoderUtil;
 
 	@Override
 	@Transactional(rollbackOn = Exception.class)

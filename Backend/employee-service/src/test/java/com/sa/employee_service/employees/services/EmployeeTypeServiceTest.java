@@ -24,9 +24,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.sa.employee_service.employees.application.inputports.ForEmployeesPort;
-import com.sa.employee_service.employees.application.inputports.ForPermissionsPort;
-import com.sa.employee_service.employees.application.usecases.EmployeeTypeService;
 import com.sa.employee_service.employees.infrastructure.repositoryadapter.models.EmployeeEntity;
 import com.sa.employee_service.employees.infrastructure.repositoryadapter.models.EmployeeTypeEntity;
 import com.sa.employee_service.employees.infrastructure.repositoryadapter.models.PermissionEntity;
@@ -40,21 +37,9 @@ public class EmployeeTypeServiceTest {
 
     @Mock
     private EmployeeTypeRepository employeeTypeRepository;
-    @Mock
-    private ForPermissionsPort forPermissionsPort;
-
-    @Mock
-    private ForEmployeesPort forEmployeesPort;
-
-    @InjectMocks
-    private EmployeeTypeService employeeTypeService;
 
     private EmployeeTypeEntity employeeType1;
     private EmployeeTypeEntity employeeType2;
-
-    private PermissionEntity permission1;
-    private PermissionEntity permission2;
-    private List<PermissionEntity> permissionsToAssing;
 
     private static final String EMPLOYEETYPE_ID_1 = "asdfg-asdfgasdf";
     private static final String EMPLOYEETYPE_NAME_1 = "Admin";
@@ -62,18 +47,10 @@ public class EmployeeTypeServiceTest {
     private static final String EMPLOYEETYPE_ID_2 = "qwerty-qwerty";
     private static final String EMPLOYEETYPE_NAME_2 = "User";
 
-    private static final String PERMISSION_ID_1 = "2345-asdfg";
-    private static final String PERMISSION_NAME_1 = "Crear";
-    private static final String PERMISSION_ID_2 = "sdfg-23453";
-    private static final String PERMISSION_NAME_2 = "Editar";
-
     @BeforeEach
     public void setUp() {
         employeeType1 = new EmployeeTypeEntity(EMPLOYEETYPE_ID_1, EMPLOYEETYPE_NAME_1);
         employeeType2 = new EmployeeTypeEntity(EMPLOYEETYPE_ID_2, EMPLOYEETYPE_NAME_2);
-        permission1 = new PermissionEntity(PERMISSION_ID_1, PERMISSION_NAME_1);
-        permission2 = new PermissionEntity(PERMISSION_ID_2, PERMISSION_NAME_2);
-        permissionsToAssing = List.of(permission1, permission2);
         // para los delete demos inicializar las asignaciones de los typos empleados
         employeeType1.setEmployees(List.of());
         employeeType2.setEmployees(List.of());
@@ -344,106 +321,4 @@ public class EmployeeTypeServiceTest {
         verify(employeeTypeRepository, never()).delete(any(EmployeeTypeEntity.class));
     }
      */
-
-    /**
-     * dado: que el tipo de empleado existe en la base de datos.
-     * cuando: se consulta su existencia por ID.
-     * entonces: el método devuelve true.
-     */
-    @Test
-    public void existsEmployeeTypeByIdShouldReturnTrueWhenEmployeeTypeExistsById() throws NotFoundException {
-        // ARRANGE
-        when(employeeTypeRepository.existsById(anyString())).thenReturn(true);
-        // ACT
-        boolean result = employeeTypeService.existsEmployeeTypeById(employeeType1.getId());
-        // ASSERTS
-        assertTrue(result);
-    }
-
-    /**
-     * dado: que el tipo de empleado no existe en la base de datos.
-     * cuando: se consulta su existencia por ID.
-     * entonces: el método devuelve false.
-     */
-    @Test
-    public void existsEmployeeTypeByIdShouldReturnFalseWhenEmployeeTypeDoesNotExistById() {
-        // ARRANGE
-        when(employeeTypeRepository.existsById(anyString())).thenReturn(false);
-        // ACT
-        boolean result = employeeTypeService.existsEmployeeTypeById(EMPLOYEETYPE_ID_1);
-        // ASSERTS
-        assertFalse(result);
-    }
-
-    /**
-     * dado: que el tipo de empleado existe en la base de datos.
-     * cuando: se consulta su existencia por nombre.
-     * entonces: el método devuelve true.
-     */
-    @Test
-    public void existsEmployeeTypeByNameShouldReturnTrueWhenEmployeeTypeExistsByName() throws NotFoundException {
-        // ARRANGE
-        when(employeeTypeRepository.existsByName(anyString())).thenReturn(true);
-        // ACT
-        boolean result = employeeTypeService.existsEmployeeTypeByName(EMPLOYEETYPE_ID_1);
-        // ASSERTS
-        assertTrue(result);
-    }
-
-    /**
-     * dado: que el tipo de empleado no existe en la base de datos.
-     * cuando: se consulta su existencia por nombre.
-     * entonces: el método devuelve false.
-     */
-    @Test
-    public void existsEmployeeTypeByNameShouldReturnFalseWhenEmployeeTypeDoesNotExistByName() {
-        // ARRANGE
-        when(employeeTypeRepository.existsByName(anyString())).thenReturn(false);
-        // ACT
-        boolean result = employeeTypeService.existsEmployeeTypeByName(EMPLOYEETYPE_ID_1);
-        // ASSERTS
-        assertFalse(result);
-    }
-
-    /**
-     * dado: que existen tipos de empleados en la base de datos.
-     * cuando: se consultan todos los tipos de empleados.
-     * entonces: el método devuelve una lista con los tipos de empleados
-     * registrados.
-     */
-    @Test
-    public void findAllEmployeesTypesShouldReturnListOfEmployeeTypesWhenTheyExist() {
-        // ARRANGE
-        List<EmployeeTypeEntity> mockEmployeeTypes = List.of(employeeType1, employeeType2);
-        when(employeeTypeRepository.findAll()).thenReturn(mockEmployeeTypes);
-
-        // ACT
-        List<EmployeeTypeEntity> result = employeeTypeService.findAllEmployeesTypes();
-
-        // ASSERT
-        // verifica que la lista tiene dos elementos
-        assertEquals(2, result.size());
-        // verifica que employeeType1 está en la lista
-        assertTrue(result.contains(employeeType1));
-        // verifica que employeeType2 está en la lista
-        assertTrue(result.contains(employeeType2));
-    }
-
-    /**
-     * dado: que no existen tipos de empleados en la base de datos.
-     * cuando: se consultan todos los tipos de empleados.
-     * entonces: el método devuelve una lista vacía.
-     */
-    @Test
-    public void findAllEmployeesTypesShouldReturnEmptyListWhenNoEmployeeTypesExist() {
-        // ARRANGE
-        when(employeeTypeRepository.findAll()).thenReturn(List.of());
-
-        // ACT
-        List<EmployeeTypeEntity> result = employeeTypeService.findAllEmployeesTypes();
-
-        // ASSERT
-        assertTrue(result.isEmpty()); // la lista debe estar vacía
-    }
-
 }

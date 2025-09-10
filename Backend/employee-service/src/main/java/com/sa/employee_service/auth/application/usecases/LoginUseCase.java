@@ -13,7 +13,7 @@ import com.sa.employee_service.employees.application.inputports.FindEmployeeByUs
 import com.sa.employee_service.employees.application.inputports.FindPermissionsActionsByUsernameInputPort;
 import com.sa.employee_service.employees.domain.Employee;
 import com.sa.employee_service.employees.infrastructure.restadapter.mappers.EmployeeMapper;
-import com.sa.employee_service.employees.infrastructure.restadapter.mappers.PermissionMapper;
+import com.sa.employee_service.employees.infrastructure.restadapter.mappers.PermissionRestMapper;
 import com.sa.employee_service.shared.utils.PasswordEncoderUtil;
 import com.sa.employee_service.users.application.inputports.FindUserByUsernameInputPort;
 import com.sa.employee_service.users.application.inputports.ForUsersPort;

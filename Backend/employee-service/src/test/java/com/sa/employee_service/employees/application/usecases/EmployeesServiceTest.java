@@ -37,14 +37,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.sa.employee_service.employees.application.dtos.CreateEmployeeDTO;
-import com.sa.employee_service.employees.application.inputports.ForEmployeeTypePort;
-import com.sa.employee_service.employees.application.usecases.EmployeeService;
 import com.sa.employee_service.employees.domain.Employee;
 import com.sa.employee_service.employees.domain.EmployeeType;
 import com.sa.employee_service.employees.infrastructure.repositoryadapter.models.EmployeeEntity;
-import com.sa.employee_service.employees.infrastructure.repositoryadapter.models.EmployeeHistory;
 import com.sa.employee_service.employees.infrastructure.repositoryadapter.models.EmployeeTypeEntity;
-import com.sa.employee_service.employees.infrastructure.repositoryadapter.models.HistoryType;
 import com.sa.employee_service.employees.infrastructure.repositoryadapter.repositories.EmployeeRepository;
 import com.sa.employee_service.shared.domain.enums.EmployeeTypeEnum;
 import com.sa.employee_service.users.application.dtos.CreateUserDTO;
@@ -67,9 +63,6 @@ public class EmployeesServiceTest {
         private UserRepository userRepository;
 
         @Mock
-        private ForEmployeeTypePort forEmployeeTypePort;
-
-        @Mock
         private ForUsersPort forUsersPort;
 
         @Mock
@@ -85,16 +78,8 @@ public class EmployeesServiceTest {
         @Mock
         private ExistsRestaurantByIdOutputPort existsRestaurantByIdOutputPort;
 
-        @InjectMocks
-        private EmployeeService employeeService;
 
         private UserEntity user;
-        private HistoryType historyType;
-        private HistoryType historyTypeIncrease;
-        private HistoryType historyTypeDecrease;
-        private HistoryType historyTypeFiring;
-        private EmployeeHistory employeeHistory;
-        private EmployeeHistory reactivationHistory;
         private EmployeeEntity employee;
         private EmployeeEntity updatedEmployee;
         private EmployeeTypeEntity employeeType;
@@ -123,39 +108,8 @@ public class EmployeesServiceTest {
         private static final String UPDATED_EMPLOYEE_FIRST_NAME = "Carlos";
         private static final String UPDATED_EMPLOYEE_LAST_NAME = "Ramírez";
         private static final BigDecimal UPDATED_EMPLOYEE_SALARY = new BigDecimal(7000);
-        private static final BigDecimal UPDATED_EMPLOYEE_IGSS = new BigDecimal(5.25);
-        private static final BigDecimal UPDATED_EMPLOYEE_IRTRA = new BigDecimal(10.2);
 
-        /** Para el historial del empleado **/
-        private static final String HISTORY_TYPE_ID = "fdsf-rtrer-bbvk";
-        private static final String HISTORY_TYPE = "Contratacion";
-        private static final String HISTORY_TYPE_ID_INCREASE = "rewp-fkds-bbvk";
-        private static final String HISTORY_TYPE_INCREASE = "Aumento Salarial";
-        private static final String HISTORY_TYPE_ID_DECREASE = "dflm-fodp-bbvk";
-        private static final String HISTORY_TYPE_DECREASE = "Disminucion Salarial";
-        private static final String HISTORY_TYPE_FIRING = "Despido";
-        private static final String HISTORY_TYPE_ID_FIRING = "fdsj-ewoi-dsml";
-
-        private static final String EMPLOYEE_HISTORY_ID = "rewf-fdsa-fdsd";
-        private static final String EMPLOYEE_HISTORY_COMMENTARY = "Se realizo la contratacion con un salario de Q.7000";
         private static final LocalDate EMPLOYEE_HISTORY_LOCAL_DATE = LocalDate.of(2022, 11, 23);
-
-        private static final String EMPLOYEE_REACTIVATION_HISTORY_ID = "klfd-dkns-fwsd";
-        private static final String EMPLOYEE_REACTIVATION_HISTORY_COMMENTARY = "El empleado fue recontratado.";
-
-        private static final LocalDate EMPLOYEE_REACTIVATION_LOCAL_DATE = LocalDate.of(2022, 3, 23);
-        private static final LocalDate EMPLOYEE_DEACTIVATION_LOCAL_DATE = LocalDate.of(2022, 12, 23);
-        private static final LocalDate EMPLOYEE_OLD_DEACTIVATION_LOCAL_DATE = LocalDate.of(2022, 1, 23);
-
-        private static final BigDecimal EMPLOYEE_STARTING_SALARY = new BigDecimal(1200);
-        private static final BigDecimal EMPLOYEE_NEW_SALARY = new BigDecimal(1500);
-        private static final String EMPLOYEE_NEW_SALARY_COMMENTARY = "1500";
-        private static final String EMPLOYEE_HISTORY_INCREASE_COMMENTARY = "Se realizo la contratacion con un salario de Q.1200";
-
-        private static final BigDecimal EMPLOYEE_STARTING_DECREASE_SALARY = new BigDecimal(1500);
-        private static final BigDecimal EMPLOYEE_NEW_SALARY_DECREASE = new BigDecimal(1200);
-        private static final String EMPLOYEE_NEW_SALARY_DECREASE_COMMENTARY = "1200";
-        private static final String EMPLOYEE_HISTORY_DECREASE_COMMENTARY = "Se realizo la contratacion con un salario de Q.1500";
 
         private static CreateEmployeeUseCase createEmployeeUseCase;
 
@@ -181,33 +135,8 @@ public class EmployeesServiceTest {
                 user = new UserEntity(USER_ID, USER_NAME, USER_PASSWORD);
                 userDomain = User.register(USER_NAME, USER_PASSWORD);
 
-                historyType = new HistoryType(HISTORY_TYPE);
-                historyType.setId(HISTORY_TYPE_ID);
-
-                historyTypeIncrease = new HistoryType(HISTORY_TYPE_INCREASE);
-                historyTypeIncrease.setId(HISTORY_TYPE_ID_INCREASE);
-
-                historyTypeDecrease = new HistoryType(HISTORY_TYPE_DECREASE);
-                historyTypeDecrease.setId(HISTORY_TYPE_ID_DECREASE);
-
-                historyTypeFiring = new HistoryType(HISTORY_TYPE_FIRING);
-                historyTypeFiring.setId(HISTORY_TYPE_ID_FIRING);
-
-                employeeHistory = new EmployeeHistory(EMPLOYEE_HISTORY_COMMENTARY);
-                employeeHistory.setHistoryDate(EMPLOYEE_HISTORY_LOCAL_DATE);
-                employeeHistory.setId(EMPLOYEE_HISTORY_ID);
-
-                reactivationHistory = new EmployeeHistory(EMPLOYEE_REACTIVATION_HISTORY_COMMENTARY);
-                reactivationHistory.setHistoryDate(EMPLOYEE_REACTIVATION_LOCAL_DATE);
-                reactivationHistory.setId(EMPLOYEE_REACTIVATION_HISTORY_ID);
-
                 employeeType = new EmployeeTypeEntity();
                 employeeType.setId(EMPLOYEE_TYPE_ID);
-
-                // inicializamos los empleados que usaremos para la reasignacion del tipo de
-                // empleado
-                employeeToReasignEmployeeType1 = new EmployeeEntity(EMPLOYEE_ID_1);
-                employeeToReasignEmployeeType2 = new EmployeeEntity(EMPLOYEE_ID_2);
 
 
                 createEmployeeUseCase = new CreateEmployeeUseCase(
@@ -293,7 +222,6 @@ public class EmployeesServiceTest {
                 verify(employeeRepository, times(0)).save(employee);
 
         }
-         */
 
         @Test
         public void shouldNotInsertEmployeeWithInexistantEmployeeType()
@@ -443,13 +371,13 @@ public class EmployeesServiceTest {
                                                 capturedEmployee.getUser().getDesactivatedAt(),
                                                 "User deactivation date should match"));
         }
+         */
 
         /**
          * dado: que el empleado ya está desactivado en el sistema.
          * cuando: se intenta desactivar nuevamente.
          * entonces: se lanza una excepción IllegalStateException y no se realizan
          * cambios.
-         */
         @Test
         public void desactivateEmployeeShouldThrowIllegalStateExceptionWhenEmployeeIsAlreadyDeactivated()
                         throws NotFoundException {
@@ -481,12 +409,12 @@ public class EmployeesServiceTest {
                                         historyTypeFiring);
                 });
         }
+         */
 
         /**
          * dado: que el empleado y el tipo de empleado existen en la base de datos.
          * cuando: se reasigna el tipo de empleado a un nuevo tipo válido.
          * entonces: el empleado debe tener actualizado el nuevo tipo de empleado.
-         */
         @Test
         public void reassignEmployeeTypeShouldReassignEmployeeTypeSuccessfully() throws NotFoundException {
 
@@ -507,6 +435,7 @@ public class EmployeesServiceTest {
                 verify(employeeRepository, times(1)).findById(EMPLOYEE_ID);
                 verify(forEmployeeTypePort, times(1)).findEmployeeTypeById(EMPLOYEE_TYPE_ID);
         }
+         */
 
         /**
          * dado: que el empleado no existe en la base de datos.
@@ -515,7 +444,6 @@ public class EmployeesServiceTest {
          * cambios.
          *
          * @throws NotFoundException
-         */
         @Test
         public void shouldThrowNotFoundExceptionWhenEmployeeDoesNotExist() throws NotFoundException {
                 // ARRANGE
@@ -529,6 +457,7 @@ public class EmployeesServiceTest {
                 verify(employeeRepository, times(1)).findById(EMPLOYEE_ID);
                 verify(forEmployeeTypePort, never()).findEmployeeTypeById(anyString());
         }
+         */
 
         /**
          * dado: que el tipo de empleado no existe en la base de datos.
@@ -537,7 +466,6 @@ public class EmployeesServiceTest {
          * cambios.
          *
          * @throws NotFoundException
-         */
         @Test
         public void shouldThrowNotFoundExceptionWhenEmployeeTypeDoesNotExist() throws NotFoundException {
                 // ARRANGE
@@ -562,6 +490,7 @@ public class EmployeesServiceTest {
 
         EmployeeEntity employeeToReasignEmployeeType1;
         EmployeeEntity employeeToReasignEmployeeType2;
+         */
 
         /**
          * dado: que una lista de empleados y un tipo de empleado existen en la base de
@@ -569,7 +498,6 @@ public class EmployeesServiceTest {
          * cuando: se reasignan todos los empleados a un nuevo tipo de empleado válido.
          * entonces: todos los empleados deben tener actualizado el nuevo tipo de
          * empleado.
-         */
         @Test
         public void shouldReassignEmployeeTypeForMultipleEmployeesSuccessfully() throws NotFoundException {
                 // ARRANGE
@@ -594,6 +522,7 @@ public class EmployeesServiceTest {
                 verify(employeeRepository, times(2)).findById(anyString());
                 verify(forEmployeeTypePort, times(2)).findEmployeeTypeById(EMPLOYEE_TYPE_ID);
         }
+         */
 
         /**
          * dado: que al menos un empleado de la lista no existe en la base de datos.
@@ -602,7 +531,6 @@ public class EmployeesServiceTest {
          * en ningún empleado.
          *
          * @throws NotFoundException
-         */
         @Test
         public void shouldThrowNotFoundExceptionWhenAnyEmployeeDoesNotExist() throws NotFoundException {
                 // ARRANGE
@@ -623,6 +551,7 @@ public class EmployeesServiceTest {
                 // segunda vez ya habra fallado antes de llegar alli
                 verify(forEmployeeTypePort, times(1)).findEmployeeTypeById(anyString());
         }
+         */
 
         /**
          * dado: que el tipo de empleado no existe en la base de datos.
@@ -632,7 +561,6 @@ public class EmployeesServiceTest {
          * en ningún empleado.
          *
          * @throws NotFoundException
-         */
         @Test
         public void shouldThrowNotFoundExceptionWhenEmployeeTypeDoesNotExistForMultipleEmployees()
                         throws NotFoundException {
@@ -653,12 +581,12 @@ public class EmployeesServiceTest {
                 verify(employeeRepository, times(1)).findById(anyString());
                 verify(forEmployeeTypePort, times(1)).findEmployeeTypeById(EMPLOYEE_TYPE_ID);
         }
+         */
 
         /**
          * dado: que existen empleados en la base de datos.
          * cuando: se consulta la lista de empleados.
          * entonces: el método devuelve una lista con los empleados existentes.
-         */
         @Test
         public void shouldReturnListOfEmployeesWhenEmployeesExist() {
                 // ARRANGE
@@ -675,6 +603,7 @@ public class EmployeesServiceTest {
 
                 verify(employeeRepository, times(1)).findAll();
         }
+         */
 
         /**
          * dado: que existe un tipo de empleado válido en la base de datos.
@@ -682,7 +611,6 @@ public class EmployeesServiceTest {
          * búsqueda.
          * entonces: se devuelve una lista con los empleados que coinciden con el nombre
          * o apellido buscado.
-         */
         @Test
         public void shouldReturnEmployeesByTypeWithMatchingSearch() throws NotFoundException {
                 // ARRANGE
@@ -705,13 +633,13 @@ public class EmployeesServiceTest {
                 verify(forEmployeeTypePort, times(1)).findEmployeeTypeById(EMPLOYEE_TYPE_ID);
                 verify(employeeRepository, times(1)).findAll(ArgumentMatchers.<Specification<EmployeeEntity>>any());
         }
+         */
 
         /**
          * dado: que el tipo de empleado no existe en la base de datos.
          * cuando: se intenta obtener empleados por ese tipo.
          * entonces: se lanza una excepción `NotFoundException` y no se realiza ninguna
          * consulta a la base de datos.
-         */
         @Test
         public void shouldThrowNotFoundExceptionWhenTypeNotFoundInGetEmployeesByType() throws NotFoundException {
                 // ARRANGE
@@ -726,6 +654,7 @@ public class EmployeesServiceTest {
                 verify(forEmployeeTypePort, times(1)).findEmployeeTypeById("invalid-id");
                 verify(employeeRepository, never()).findAll(ArgumentMatchers.<Specification<EmployeeEntity>>any());
         }
+         */
 
         /**
          * dado: que existe un empleado registrado con el nombre de usuario
@@ -733,7 +662,6 @@ public class EmployeesServiceTest {
          * cuando: se busca el empleado por su nombre de usuario.
          * entonces: se retorna el empleado correspondiente sin lanzar ninguna
          * excepción.
-         */
         @Test
         public void shouldReturnEmployeeWhenEmployeeExistsByUsername() throws NotFoundException {
                 // arrange
@@ -748,6 +676,7 @@ public class EmployeesServiceTest {
                                 () -> assertEquals(EMPLOYEE_ID, result.getId()),
                                 () -> assertEquals(EMPLOYEE_FIRST_NAME, result.getFirstName()));
         }
+         */
 
         /**
          * dado: que no existe un empleado registrado con el nombre de usuario
@@ -755,7 +684,6 @@ public class EmployeesServiceTest {
          * cuando: se intenta buscar el empleado por su nombre de usuario.
          * entonces: se lanza una excepción NotFoundException indicando que no fue
          * encontrado.
-         */
         @Test
         public void shouldThrowNotFoundExceptionWhenEmployeeNotFoundByUsername() {
                 // arrange
@@ -767,5 +695,6 @@ public class EmployeesServiceTest {
                                 () -> employeeService.findEmployeeByUsername(USER_NAME));
 
         }
+         */
 
 }
