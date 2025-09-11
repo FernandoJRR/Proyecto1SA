@@ -3,6 +3,8 @@ package com.sa.finances_service.promotions.infrastructure.repositoryadapter.adap
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.sa.finances_service.promotions.application.outputports.FindPromotionsByDateAndRestaurantOutputPort;
 import com.sa.finances_service.promotions.domain.Promotion;
 import com.sa.finances_service.promotions.infrastructure.repositoryadapter.mappers.PromotionRepositoryMapper;
@@ -20,6 +22,7 @@ public class FindPromotionsByDateAndRestaurantAdapter implements FindPromotionsB
     private final PromotionRepositoryMapper promotionRepositoryMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public List<Promotion> findByStartDateAndRestaurant(LocalDate startDate, String restaurantId) {
         List<PromotionEntity> result = promotionRepository.findActiveForRestaurant(restaurantId, startDate);
         return promotionRepositoryMapper.toDomain(result);
