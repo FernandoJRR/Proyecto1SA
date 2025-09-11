@@ -3,6 +3,8 @@ package com.sa.client_service.reservations.infrastructure.repositoryadapter.adap
 import java.time.LocalDate;
 import java.util.UUID;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.sa.client_service.reservations.application.outputports.CheckRoomAvailabilityOutputPort;
 import com.sa.client_service.reservations.infrastructure.repositoryadapter.mappers.ReservationRepositoryMapper;
 import com.sa.client_service.reservations.infrastructure.repositoryadapter.repositories.ReservationRepository;
@@ -17,6 +19,7 @@ public class CheckRoomAvailabilityAdapter implements CheckRoomAvailabilityOutput
     private final ReservationRepository reservationRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public boolean isAvailable(UUID hotelId, UUID roomId, LocalDate startDate, LocalDate endDate) {
         boolean anyOverlap = reservationRepository.existsOverlappingReservation(
                 hotelId, roomId, startDate, endDate);

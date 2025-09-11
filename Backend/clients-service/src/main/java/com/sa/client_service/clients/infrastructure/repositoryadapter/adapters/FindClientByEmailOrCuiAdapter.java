@@ -2,6 +2,8 @@ package com.sa.client_service.clients.infrastructure.repositoryadapter.adapters;
 
 import java.util.Optional;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.sa.client_service.clients.application.outputports.FindClientByEmailOrCuiOutputPort;
 import com.sa.client_service.clients.domain.Client;
 import com.sa.client_service.clients.infrastructure.repositoryadapter.mappers.ClientRepositoryMapper;
@@ -18,6 +20,7 @@ public class FindClientByEmailOrCuiAdapter implements FindClientByEmailOrCuiOutp
     private final ClientRepositoryMapper clientRepositoryMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Client> findByEmailOrCui(String email, String cui) {
          return clientRepository.findFirstByEmailOrCui(email, cui)
             .map(clientRepositoryMapper::toDomain);

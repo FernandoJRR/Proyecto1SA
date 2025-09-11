@@ -3,7 +3,9 @@ package com.sa.client_service.reservations.application.usecases;
 import com.sa.shared.exceptions.InvalidParameterException;
 
 import java.time.temporal.ChronoUnit;
-import java.util.Optional;
+
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 import com.sa.application.annotations.UseCase;
 import com.sa.client_service.clients.application.outputports.FindClientByCuiOutputPort;
@@ -17,16 +19,15 @@ import com.sa.client_service.reservations.application.outputports.CreateReservat
 import com.sa.client_service.reservations.application.outputports.FindPromotionByIdOutputPort;
 import com.sa.client_service.reservations.application.outputports.FindRoomByHotelAndIdOutputPort;
 import com.sa.client_service.reservations.domain.Reservation;
-import com.sa.client_service.reviews.application.outputports.ExistsRoomByIdOutputPort;
 import com.sa.client_service.shared.application.dtos.CreatePaymentDTO;
 import com.sa.client_service.shared.application.outputports.CreatePaymentOutputPort;
-import com.sa.client_service.shared.application.outputports.ExistsRoomInHotelByIdOutputPort;
 import com.sa.shared.exceptions.NotFoundException;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @UseCase
+@Validated
 @RequiredArgsConstructor
 public class CreateReservationUseCase implements CreateReservationInputPort {
 
@@ -38,6 +39,7 @@ public class CreateReservationUseCase implements CreateReservationInputPort {
     private final CreatePaymentOutputPort createPaymentOutputPort;
 
     @Override
+    @Transactional
     public Reservation handle(@Valid CreateReservationDTO createReservationDTO)
             throws NotFoundException, InvalidParameterException {
 

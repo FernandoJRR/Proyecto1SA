@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import com.sa.domain.Auditor;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = true)
 public class Client extends Auditor {
     private String firstName;
     private String lastName;

@@ -170,6 +170,8 @@
                         <configuration>
                             <excludes>
                                 <exclude>**/*MapperImpl.class</exclude>
+                                <exclude>**/*Enum.class</exclude>
+                                <exclude>**/controllers/**</exclude>
                             </excludes>
                         </configuration>
                     </execution>

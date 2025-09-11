@@ -2,6 +2,7 @@ package com.sa.client_service.clients.application.usecases;
 
 import java.util.Optional;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import com.sa.application.annotations.UseCase;
@@ -24,6 +25,7 @@ public class CreateClientUseCase implements CreateClientInputPort {
     private final FindClientByEmailOrCuiOutputPort findClientByEmailOrCuiOutputPort;
 
     @Override
+    @Transactional
     public Client handle(@Valid CreateClientDTO createClientDTO) throws DuplicatedEntryException {
 
         Optional<Client> foundClient = findClientByEmailOrCuiOutputPort.findByEmailOrCui(createClientDTO.getEmail(), createClientDTO.getCui());

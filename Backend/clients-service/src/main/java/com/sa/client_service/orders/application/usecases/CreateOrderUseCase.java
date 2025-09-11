@@ -9,6 +9,9 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
+
 import com.sa.application.annotations.UseCase;
 import com.sa.client_service.clients.application.outputports.FindClientByCuiOutputPort;
 import com.sa.client_service.clients.domain.Client;
@@ -29,9 +32,11 @@ import com.sa.client_service.shared.application.outputports.CreatePaymentOutputP
 import com.sa.shared.exceptions.InvalidParameterException;
 import com.sa.shared.exceptions.NotFoundException;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @UseCase
+@Validated
 @RequiredArgsConstructor
 public class CreateOrderUseCase implements CreateOrderInputPort {
 
@@ -43,7 +48,8 @@ public class CreateOrderUseCase implements CreateOrderInputPort {
     private final CreatePaymentOutputPort createPaymentOutputPort;
 
     @Override
-    public Order handle(CreateOrderDTO createOrderDTO) throws NotFoundException, InvalidParameterException {
+    @Transactional
+    public Order handle(@Valid CreateOrderDTO createOrderDTO) throws NotFoundException, InvalidParameterException {
 
         final String clientCui = createOrderDTO.getClientCui();
         final UUID restaurantId = createOrderDTO.getRestaurantId();

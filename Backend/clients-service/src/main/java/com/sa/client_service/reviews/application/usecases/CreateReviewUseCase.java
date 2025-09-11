@@ -13,7 +13,6 @@ import com.sa.client_service.reviews.application.dtos.CreateReviewDTO;
 import com.sa.client_service.reviews.application.dtos.FindReviewsDTO;
 import com.sa.client_service.reviews.application.inputports.CreateReviewInputPort;
 import com.sa.client_service.reviews.application.outputports.CreateReviewOutputPort;
-import com.sa.client_service.reviews.application.outputports.ExistsRoomByIdOutputPort;
 import com.sa.client_service.reviews.application.outputports.FindReviewsOutputPort;
 import com.sa.client_service.reviews.domain.EstablishmentType;
 import com.sa.client_service.reviews.domain.Review;

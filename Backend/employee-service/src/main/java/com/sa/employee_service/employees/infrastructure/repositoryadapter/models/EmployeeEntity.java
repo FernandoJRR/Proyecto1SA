@@ -93,9 +93,4 @@ public class EmployeeEntity extends AuditorEntity {
     public EmployeeEntity(String id) {
         super(id);
     }
-
-    public String getFullName() {
-        String fullname = String.format("%s %s", firstName, lastName);
-        return fullname;
-    }
 }

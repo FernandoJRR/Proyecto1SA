@@ -1,5 +1,8 @@
 package com.sa.client_service.orders.infrastructure.repositoryadapter.adapters;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.sa.client_service.orders.application.outputports.CreateOrderOutputPort;
 import com.sa.client_service.orders.domain.Order;
 import com.sa.client_service.orders.infrastructure.repositoryadapter.mappers.OrderRepositoryMapper;
@@ -18,6 +21,7 @@ public class CreateOrderAdapter implements CreateOrderOutputPort {
     private final OrderRepositoryMapper orderRepositoryMapper;
 
     @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public Order createOrder(Order order) {
         OrderEntity entity = orderRepositoryMapper.toEntity(order);
 

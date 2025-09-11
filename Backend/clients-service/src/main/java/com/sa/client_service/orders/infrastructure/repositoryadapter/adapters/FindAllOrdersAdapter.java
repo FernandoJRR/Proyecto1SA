@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.sa.client_service.orders.application.dtos.FindOrdersDTO;
 import com.sa.client_service.orders.application.outputports.FindAllOrdersOutputPort;
@@ -23,6 +24,7 @@ public class FindAllOrdersAdapter implements FindAllOrdersOutputPort {
     private final OrderRepositoryMapper orderRepositoryMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public List<Order> findAll(FindOrdersDTO filter) {
         Specification<OrderEntity> spec = buildSpec(filter.getFromDate(), filter.getToDate());
         List<OrderEntity> result = orderRepository.findAll(spec);

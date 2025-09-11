@@ -1,7 +1,6 @@
 package com.sa.employee_service.employees.domain.enums;
 
 import com.sa.employee_service.employees.domain.Permission;
-import com.sa.employee_service.employees.infrastructure.repositoryadapter.models.PermissionEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -3,6 +3,8 @@ package com.sa.client_service.orders.infrastructure.repositoryadapter.adapters;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.sa.client_service.orders.application.outputports.MostPopularDishesOutputPort;
 import com.sa.client_service.orders.infrastructure.repositoryadapter.repositories.OrderRepository;
 import com.sa.infrastructure.annotations.PersistenceAdapter;
@@ -16,6 +18,7 @@ public class MostPopularDishesAdapter implements MostPopularDishesOutputPort {
     private final OrderRepository orderRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public List<UUID> mostPopularDishes(UUID restaurantId) {
         return orderRepository.findTopDishesByRestaurant(restaurantId);
     }

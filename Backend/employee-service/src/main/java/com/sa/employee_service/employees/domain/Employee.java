@@ -70,11 +70,6 @@ public class Employee extends Auditor {
         super(id);
     }
 
-    public String getFullName() {
-        String fullname = String.format("%s %s", firstName, lastName);
-        return fullname;
-    }
-
     public static Employee hire(
             String cui,
             String firstName,
@@ -101,54 +96,5 @@ public class Employee extends Auditor {
             chosenEstablishmentType
         );
         return e;
-    }
-
-    /*
-    public void attachUser(User user) {
-        this.user = user;
-        if (user != null && user.getEmployee() != this) {
-            user.setEmployee(this);
-        }
-    }
-    */
-
-    public void changeSalary(java.math.BigDecimal newSalary) {
-        this.salary = requirePositive(newSalary, "newSalary");
-    }
-
-    public void deactivate(java.time.LocalDate date) {
-        if (this.desactivatedAt != null) {
-            throw new IllegalStateException("Employee already deactivated");
-        }
-        this.desactivatedAt = date != null ? date : java.time.LocalDate.now();
-    }
-
-    public void reactivate() {
-        if (this.desactivatedAt == null) {
-            throw new IllegalStateException("Employee already active");
-        }
-        this.desactivatedAt = null;
-    }
-
-    private static String requireNonBlank(String value, String field) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException(field + " must not be blank");
-        }
-        return value.trim();
-    }
-
-    private static java.math.BigDecimal requirePositive(java.math.BigDecimal value, String field) {
-        if (value == null || value.signum() <= 0) {
-            throw new IllegalArgumentException(field + " must be > 0");
-        }
-        return value;
-    }
-
-    private static java.math.BigDecimal requirePercentOrNull(java.math.BigDecimal value, String field) {
-        if (value == null) return null;
-        if (value.compareTo(java.math.BigDecimal.ZERO) < 0 || value.compareTo(new java.math.BigDecimal("100")) > 0) {
-            throw new IllegalArgumentException(field + " must be within [0, 100]");
-        }
-        return value;
     }
 }
