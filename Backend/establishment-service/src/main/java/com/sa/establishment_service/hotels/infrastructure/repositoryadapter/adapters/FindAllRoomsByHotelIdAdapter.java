@@ -3,6 +3,8 @@ package com.sa.establishment_service.hotels.infrastructure.repositoryadapter.ada
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.sa.establishment_service.hotels.application.outputports.FindAllRoomdByHotelIdOutputPort;
 import com.sa.establishment_service.hotels.domain.Room;
 import com.sa.establishment_service.hotels.infrastructure.repositoryadapter.mappers.RoomRepositoryMapper;
@@ -19,6 +21,7 @@ public class FindAllRoomsByHotelIdAdapter implements FindAllRoomdByHotelIdOutput
     private final RoomRepositoryMapper roomRepositoryMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public List<Room> findByHotelId(UUID hotelId) {
         return roomRepositoryMapper.toDomainList(roomRepository.findAllByHotel_Id(hotelId.toString()));
     }

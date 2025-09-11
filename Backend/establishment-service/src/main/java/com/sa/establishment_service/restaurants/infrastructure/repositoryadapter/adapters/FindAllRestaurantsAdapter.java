@@ -2,6 +2,8 @@ package com.sa.establishment_service.restaurants.infrastructure.repositoryadapte
 
 import java.util.List;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.sa.establishment_service.restaurants.application.outputports.FindAllRestaurantsOutputPort;
 import com.sa.establishment_service.restaurants.domain.Restaurant;
 import com.sa.establishment_service.restaurants.infrastructure.repositoryadapter.mappers.RestaurantRepositoryMapper;
@@ -19,6 +21,7 @@ public class FindAllRestaurantsAdapter implements FindAllRestaurantsOutputPort {
     private final RestaurantRepositoryMapper restaurantRepositoryMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public List<Restaurant> findAll() {
         List<RestaurantEntity> restaurantEntities = restaurantRepository.findAll();
         return restaurantRepositoryMapper.toDomain(restaurantEntities);

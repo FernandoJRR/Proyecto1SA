@@ -2,6 +2,8 @@ package com.sa.establishment_service.restaurants.infrastructure.repositoryadapte
 
 import java.util.Optional;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.sa.establishment_service.restaurants.application.outputports.FindRestaurantByIdOutputPort;
 import com.sa.establishment_service.restaurants.domain.Restaurant;
 import com.sa.establishment_service.restaurants.infrastructure.repositoryadapter.mappers.RestaurantRepositoryMapper;
@@ -18,6 +20,7 @@ public class FindRestaurantByIdAdapter implements FindRestaurantByIdOutputPort {
     private final RestaurantRepositoryMapper restaurantRepositoryMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Restaurant> findById(String id) {
         return restaurantRepository.findById(id)
             .map(restaurantRepositoryMapper::toDomain);

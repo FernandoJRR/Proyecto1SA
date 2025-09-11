@@ -1,5 +1,8 @@
 package com.sa.establishment_service.restaurants.infrastructure.repositoryadapter.adapters;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.sa.establishment_service.restaurants.application.outputports.CreateRestaurantOutputPort;
 import com.sa.establishment_service.restaurants.domain.Restaurant;
 import com.sa.establishment_service.restaurants.infrastructure.repositoryadapter.mappers.RestaurantRepositoryMapper;
@@ -17,6 +20,7 @@ public class CreateRestaurantAdapter implements CreateRestaurantOutputPort {
     private final RestaurantRepositoryMapper restaurantRepositoryMapper;
 
     @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public Restaurant createRestaurant(Restaurant restaurant) {
         RestaurantEntity restaurantEntity = restaurantRepositoryMapper.toEntity(restaurant);
 

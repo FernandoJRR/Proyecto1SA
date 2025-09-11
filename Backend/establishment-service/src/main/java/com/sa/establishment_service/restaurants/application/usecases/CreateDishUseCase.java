@@ -2,6 +2,7 @@ package com.sa.establishment_service.restaurants.application.usecases;
 
 import java.util.UUID;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import com.sa.application.annotations.UseCase;
@@ -25,6 +26,7 @@ public class CreateDishUseCase implements CreateDishInputPort {
 
 
     @Override
+    @Transactional
     public Dish handle(String restaurantId, @Valid CreateDishDTO createDishDTO) throws NotFoundException {
         findRestaurantByIdOutputPort.findById(restaurantId)
             .orElseThrow(() -> new NotFoundException("Restaurante no encontrado"));

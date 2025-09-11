@@ -3,6 +3,8 @@ package com.sa.establishment_service.hotels.infrastructure.repositoryadapter.ada
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.sa.establishment_service.hotels.application.outputports.FindHotelByIdOutputPort;
 import com.sa.establishment_service.hotels.domain.Hotel;
 import com.sa.establishment_service.hotels.infrastructure.repositoryadapter.mappers.HotelRepositoryMapper;
@@ -20,6 +22,7 @@ public class FindHotelByIdAdapter implements FindHotelByIdOutputPort {
     private final HotelRepositoryMapper hotelRepositoryMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Hotel> findHotelById(UUID id) {
         return hotelRepository.findById(id.toString())
             .map(hotelRepositoryMapper::toDomain);

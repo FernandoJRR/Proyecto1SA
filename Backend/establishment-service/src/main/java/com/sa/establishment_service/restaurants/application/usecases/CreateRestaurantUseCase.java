@@ -2,6 +2,7 @@ package com.sa.establishment_service.restaurants.application.usecases;
 
 import java.util.UUID;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import com.sa.application.annotations.UseCase;
@@ -25,6 +26,7 @@ public class CreateRestaurantUseCase implements CreateRestaurantInputPort {
     private final CreateRestaurantOutputPort createRestaurantOutputPort;
 
     @Override
+    @Transactional
     public Restaurant handle(@Valid CreateRestaurantDTO createRestaurantDTO) throws NotFoundException {
         Hotel foundHotel = null;
 

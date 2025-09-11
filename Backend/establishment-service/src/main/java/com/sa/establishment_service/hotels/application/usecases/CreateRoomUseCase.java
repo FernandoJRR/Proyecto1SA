@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import com.sa.application.annotations.UseCase;
@@ -28,6 +29,7 @@ public class CreateRoomUseCase implements CreateRoomInputPort {
     private final FindHotelByIdOutputPort findHotelByIdOutputPort;
 
     @Override
+    @Transactional
     public Room handle(@Valid CreateRoomDTO createRoomDTO) throws NotFoundException, DuplicatedEntryException {
         Hotel foundHotel = findHotelByIdOutputPort.findHotelById(createRoomDTO.getHotelId())
             .orElseThrow(() -> new NotFoundException("Hotel no encontrado"));

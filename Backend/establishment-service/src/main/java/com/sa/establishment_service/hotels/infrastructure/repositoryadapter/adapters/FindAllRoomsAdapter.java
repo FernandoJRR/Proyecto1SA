@@ -3,6 +3,8 @@ package com.sa.establishment_service.hotels.infrastructure.repositoryadapter.ada
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.sa.establishment_service.hotels.application.dtos.RoomWithHotelDTO;
 import com.sa.establishment_service.hotels.application.outputports.FindAllRoomsOutputPort;
 import com.sa.establishment_service.hotels.domain.Room;
@@ -21,6 +23,7 @@ public class FindAllRoomsAdapter implements FindAllRoomsOutputPort {
     private final RoomRepository roomRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public List<RoomWithHotelDTO> findAll() {
         var rows = roomRepository.findAllProjectedBy(); // List<RoomRepository.RoomWithHotelId>
 

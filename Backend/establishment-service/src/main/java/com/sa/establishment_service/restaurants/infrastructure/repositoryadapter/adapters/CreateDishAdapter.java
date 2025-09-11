@@ -2,6 +2,9 @@ package com.sa.establishment_service.restaurants.infrastructure.repositoryadapte
 
 import java.util.function.Supplier;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.sa.establishment_service.restaurants.application.outputports.CreateDishOutputPort;
 import com.sa.establishment_service.restaurants.domain.Dish;
 import com.sa.establishment_service.restaurants.infrastructure.repositoryadapter.mappers.DishRepositoryMapper;
@@ -23,6 +26,7 @@ public class CreateDishAdapter implements CreateDishOutputPort {
     private final RestaurantRepository restaurantRepository;
 
     @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public Dish createDish(String restaurantId, Dish dish) throws NotFoundException {
         RestaurantEntity foundRestaurant = restaurantRepository.findById(restaurantId)
             .orElseThrow( () -> new NotFoundException("Restaurante no encontrado"));

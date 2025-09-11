@@ -5,6 +5,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.sa.establishment_service.restaurants.application.outputports.ExistDishesRestaurantOutputPort;
 import com.sa.establishment_service.restaurants.domain.Dish;
 import com.sa.establishment_service.restaurants.infrastructure.repositoryadapter.mappers.DishRepositoryMapper;
@@ -21,6 +23,7 @@ public class ExistDishesRestaurantAdapter implements ExistDishesRestaurantOutput
     private final DishRepositoryMapper dishRepositoryMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public List<Dish> findDishesByRestaurantAndIds(String restaurantId, List<String> presentIds) {
         return dishRepositoryMapper.toDomain(dishRepository.findExistant(restaurantId, presentIds));
     }

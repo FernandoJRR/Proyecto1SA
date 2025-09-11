@@ -2,6 +2,8 @@ package com.sa.establishment_service.hotels.infrastructure.repositoryadapter.ada
 
 import java.util.Optional;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.sa.establishment_service.hotels.application.outputports.FindRoomByHotelAndIdOutputPort;
 import com.sa.establishment_service.hotels.domain.Room;
 import com.sa.establishment_service.hotels.infrastructure.repositoryadapter.mappers.RoomRepositoryMapper;
@@ -18,6 +20,7 @@ public class FindRoomByHotelAndIdAdapter implements FindRoomByHotelAndIdOutputPo
     private final RoomRepositoryMapper roomRepositoryMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Room> findByHotelAndId(String hotelId, String roomId) {
         return roomRepository.findOneByHotel_IdAndId(hotelId, roomId)
             .map(roomRepositoryMapper::toDomain);

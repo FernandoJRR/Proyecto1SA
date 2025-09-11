@@ -7,6 +7,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.validation.annotation.Validated;
+
 import com.sa.application.annotations.UseCase;
 import com.sa.establishment_service.restaurants.application.dtos.ExistDishesDTO;
 import com.sa.establishment_service.restaurants.application.dtos.ExistDishesResultDTO;
@@ -14,16 +16,18 @@ import com.sa.establishment_service.restaurants.application.inputports.ExistDish
 import com.sa.establishment_service.restaurants.application.outputports.ExistDishesRestaurantOutputPort;
 import com.sa.establishment_service.restaurants.domain.Dish;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @UseCase
 @RequiredArgsConstructor
+@Validated
 public class ExistDishesRestaurantUseCase implements ExistDishesRestaurantInputPort {
 
     private final ExistDishesRestaurantOutputPort existDishesRestaurantOutputPort;
 
     @Override
-    public ExistDishesResultDTO handle(ExistDishesDTO existDishesDTO) {
+    public ExistDishesResultDTO handle(@Valid ExistDishesDTO existDishesDTO) {
         List<Dish> existing = existDishesRestaurantOutputPort
                 .findDishesByRestaurantAndIds(existDishesDTO.getRestaurantId().toString(),
                         existDishesDTO.getDishIds().stream().map(UUID::toString).toList());
