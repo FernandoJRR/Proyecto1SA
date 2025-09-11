@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 import com.sa.employee_service.auth.application.outputports.GenerateJWTTokenOutputPort;
 import com.sa.employee_service.users.domain.User;
-import com.sa.employee_service.users.infrastructure.repositoryadapter.models.UserEntity;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;

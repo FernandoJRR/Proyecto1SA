@@ -55,6 +55,10 @@ public class SeedersConfig implements CommandLineRunner {
 		List<Permission> createdPermissions = new ArrayList<>();
 
 
+		List<Permission> permissionsHotelStaff = new ArrayList<>();
+		List<Permission> permissionsRestaurantStaff = new ArrayList<>();
+		List<Permission> permissionsAccountant = new ArrayList<>();
+
 		// cremos los permisos
 		for (SystemPermissionEnum permissionEnum : SystemPermissionEnum.values()) {
             Permission tempPermission = permissionEnum.getPermission();
@@ -63,26 +67,81 @@ public class SeedersConfig implements CommandLineRunner {
             );
 			Permission createdPermission = createPermissionInputPort
 					.handle(createPermissionDTO);
+
 			createdPermissions.add(createdPermission);
+
+            //Hotel Staff permissions
+            if (permissionEnum.equals(SystemPermissionEnum.CREATE_RESERVATION)
+            || permissionEnum.equals(SystemPermissionEnum.CANCEL_RESERVATION)
+            || permissionEnum.equals(SystemPermissionEnum.PAY_RESERVATION)
+            || permissionEnum.equals(SystemPermissionEnum.DELETE_RESERVATION)
+            || permissionEnum.equals(SystemPermissionEnum.CREATE_PAYMENT)
+            || permissionEnum.equals(SystemPermissionEnum.CREATE_CLIENT)
+            ) {
+                permissionsHotelStaff.add(createdPermission);
+            }
+
+            //Restaurant Staff permissions
+            if (permissionEnum.equals(SystemPermissionEnum.CREATE_ORDER)
+            || permissionEnum.equals(SystemPermissionEnum.CREATE_PAYMENT)
+            || permissionEnum.equals(SystemPermissionEnum.CREATE_CLIENT)
+            ) {
+                permissionsRestaurantStaff.add(createdPermission);
+            }
+
+            //Accountant permissions
+            if (permissionEnum.equals(SystemPermissionEnum.READ_REPORT)
+            ) {
+                permissionsAccountant.add(createdPermission);
+            }
 		}
 
-        List<PermissionEntity> entitiesPermissions = permissionRepositoryMapper.toEntityList(createdPermissions);
+        List<PermissionEntity> adminPermissionEntities = permissionRepositoryMapper.toEntityList(createdPermissions);
+        List<PermissionEntity> hotelStaffPermissionEntities = permissionRepositoryMapper.toEntityList(permissionsHotelStaff);
+        List<PermissionEntity> restaurantStaffPermissionEntities = permissionRepositoryMapper.toEntityList(permissionsRestaurantStaff);
+        List<PermissionEntity> acountantPermissionEntities = permissionRepositoryMapper.toEntityList(permissionsAccountant);
 		// mandamos a crear el tipo de empleado admin
         EmployeeType tempAdminType = EmployeeTypeEnum.ADMIN.getEmployeeType();
         tempAdminType.setId(UUID.randomUUID());
         tempAdminType.setPermissions(createdPermissions);
-        EmployeeTypeEntity employeeTypeEntity = new EmployeeTypeEntity(
+        EmployeeTypeEntity adminTypeEntity = new EmployeeTypeEntity(
             tempAdminType.getId().toString(),
             tempAdminType.getName()
         );
-        employeeTypeEntity.setPermissions(entitiesPermissions);
+        adminTypeEntity.setPermissions(adminPermissionEntities);
+		EmployeeTypeEntity adminEmployeeType = employeeTypeRepository.save(adminTypeEntity);
 
-		EmployeeTypeEntity adminEmployeeType = employeeTypeRepository.save(employeeTypeEntity);
+		// se crean los tipos de usuario
+		EmployeeType hotelStaffType = EmployeeTypeEnum.STAFF_HOTEL.getEmployeeType();
+        hotelStaffType.setId(UUID.randomUUID());
+        hotelStaffType.setPermissions(permissionsHotelStaff);
+        EmployeeTypeEntity hotelStaffTypeEntity = new EmployeeTypeEntity(
+            hotelStaffType.getId().toString(),
+            hotelStaffType.getName()
+        );
+        hotelStaffTypeEntity.setPermissions(hotelStaffPermissionEntities);
+		employeeTypeRepository.save(hotelStaffTypeEntity);
 
-		// creamos el tipo de usuario
-		EmployeeTypeEntity newEmployeeType = new EmployeeTypeEntity("USER");
-        newEmployeeType.setId(UUID.randomUUID().toString());
-		employeeTypeRepository.save(newEmployeeType);
+		EmployeeType restaurantStaffType = EmployeeTypeEnum.STAFF_RESTAURANT.getEmployeeType();
+        restaurantStaffType.setId(UUID.randomUUID());
+        restaurantStaffType.setPermissions(permissionsRestaurantStaff);
+        EmployeeTypeEntity restaurantStaffTypeEntity = new EmployeeTypeEntity(
+            restaurantStaffType.getId().toString(),
+            restaurantStaffType.getName()
+        );
+        restaurantStaffTypeEntity.setPermissions(restaurantStaffPermissionEntities);
+		employeeTypeRepository.save(restaurantStaffTypeEntity);
+
+		EmployeeType acountantType = EmployeeTypeEnum.CONTADOR.getEmployeeType();
+        acountantType.setId(UUID.randomUUID());
+        acountantType.setPermissions(permissionsAccountant);
+        EmployeeTypeEntity acountantTypeEntity = new EmployeeTypeEntity(
+            acountantType.getId().toString(),
+            acountantType.getName()
+        );
+        acountantTypeEntity.setPermissions(acountantPermissionEntities);
+		employeeTypeRepository.save(acountantTypeEntity);
+
 
         CreateUserDTO createUserDTO = new CreateUserDTO("admin", "admin");
         CreateEmployeeDTO createEmployeeDTO = new CreateEmployeeDTO();

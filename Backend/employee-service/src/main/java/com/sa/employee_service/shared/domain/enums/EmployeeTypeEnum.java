@@ -14,8 +14,8 @@ public enum EmployeeTypeEnum {
 
     DEFAULT(new EmployeeType(null,"Sin Asignar")),
     ADMIN(new EmployeeType(null,"Admin")),
-    GERENTE(new EmployeeType(null,"Gerente")),
-    STAFF(new EmployeeType(null,"Staff")),
+    STAFF_HOTEL(new EmployeeType(null,"Staff Hotel")),
+    STAFF_RESTAURANT(new EmployeeType(null,"Staff Restaurante")),
     CONTADOR(new EmployeeType(null,"Contador"));
 
     private final EmployeeType employeeType;

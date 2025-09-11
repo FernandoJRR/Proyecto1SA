@@ -26,9 +26,6 @@ public enum SystemPermissionEnum {
     EDIT_ROOM(new Permission(null,"Editar habitacion", "EDIT_ROOM")),
     DELETE_ROOM(new Permission(null,"Eliminar habitacion", "DELETE_ROOM")),
 
-    // Permisos de facturacion
-    CREATE_INVOICE(new Permission(null,"Crear factura", "CREATE_INVOICE")),
-
     // Permisos de reservas
     CREATE_RESERVATION(new Permission(null,"Crear reserva", "CREATE_RESERVATION")),
     CANCEL_RESERVATION(new Permission(null,"Cancelar reserva", "CANCEL_RESERVATION")),
@@ -51,9 +48,6 @@ public enum SystemPermissionEnum {
     // Permisos sobre pagos
     CREATE_PAYMENT(new Permission(null,"Crear pago", "CREATE_PAYMENT")),
 
-    // Permisos de stock
-    MODIFY_STOCK(new Permission(null,"Modificar stock", "MODIFY_STOCK")),
-
     // Permisos de hoteles
     CREATE_HOTEL(new Permission(null,"Crear hotel", "CREATE_HOTEL")),
     EDIT_HOTEL(new Permission(null,"Editar hotel", "EDIT_HOTEL")),
@@ -69,8 +63,8 @@ public enum SystemPermissionEnum {
     EDIT_CLIENT(new Permission(null,"Editar client", "EDIT_CLIENT")),
     DELETE_CLIENT(new Permission(null,"Activar o desactivar client", "TOOGLE_CLIENT")),
 
-    // Permisos de reviews
-    CREATE_REVIEW(new Permission(null,"Crear review", "CREATE_REVIEW")),
+    // Permisos de reportes
+    READ_REPORT(new Permission(null,"Ver reporte", "READ_REPORT")),
     ;
 
     private final Permission permission;
