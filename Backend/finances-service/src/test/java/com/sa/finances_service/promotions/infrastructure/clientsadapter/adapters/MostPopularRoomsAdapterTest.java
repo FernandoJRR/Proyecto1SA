@@ -65,5 +65,3 @@ class MostPopularRoomsAdapterTest {
         assertTrue(result.isEmpty());
     }
 }
-
-// TestUtils helper is defined in MostPopularDishesAdapterTest within this package
