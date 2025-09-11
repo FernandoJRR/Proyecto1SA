@@ -26,6 +26,9 @@ public class GetIncomeOutcomeUseCase implements GetIncomeOutcomeInputPort {
 
     @Override
     public IncomeOutcomeDTO handle(LocalDate fromDate, LocalDate toDate) throws NotFoundException {
+
+        //TODO: add date validation
+
         List<Payment> payments = findPaymentsOutputPort.findAll(
             FindPaymentsDTO.builder()
             .fromDate(fromDate)

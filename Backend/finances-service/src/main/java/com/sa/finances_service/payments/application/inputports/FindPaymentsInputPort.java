@@ -5,6 +5,8 @@ import java.util.List;
 import com.sa.finances_service.payments.application.dtos.FindPaymentsDTO;
 import com.sa.finances_service.payments.domain.Payment;
 
+import jakarta.validation.Valid;
+
 public interface FindPaymentsInputPort {
-    public List<Payment> handle(FindPaymentsDTO filter);
+    public List<Payment> handle(@Valid FindPaymentsDTO filter);
 }

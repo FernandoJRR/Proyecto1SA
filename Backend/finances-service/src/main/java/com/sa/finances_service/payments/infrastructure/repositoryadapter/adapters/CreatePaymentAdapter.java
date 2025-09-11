@@ -1,5 +1,8 @@
 package com.sa.finances_service.payments.infrastructure.repositoryadapter.adapters;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.sa.finances_service.payments.application.outputports.CreatePaymentOutputPort;
 import com.sa.finances_service.payments.domain.Payment;
 import com.sa.finances_service.payments.infrastructure.repositoryadapter.mappers.PaymentRepositoryMapper;
@@ -17,6 +20,7 @@ public class CreatePaymentAdapter implements CreatePaymentOutputPort {
     private final PaymentRepositoryMapper paymentRepositoryMapper;
 
     @Override
+    @Transactional(propagation = Propagation.MANDATORY)
     public Payment createPayment(Payment payment) {
         PaymentEntity paymentEntity = paymentRepositoryMapper.toEntity(payment);
         PaymentEntity createdEntity = paymentRepository.save(paymentEntity);

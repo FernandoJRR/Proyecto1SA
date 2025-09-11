@@ -4,6 +4,8 @@ import com.sa.finances_service.promotions.application.dtos.FindReservationEligib
 import com.sa.finances_service.promotions.domain.Promotion;
 import com.sa.shared.exceptions.NotFoundException;
 
+import jakarta.validation.Valid;
+
 public interface FindEligiblePromotionReservationInputPort {
-    public Promotion handle(FindReservationEligibilityDTO dto) throws NotFoundException;
+    public Promotion handle(@Valid FindReservationEligibilityDTO dto) throws NotFoundException;
 }

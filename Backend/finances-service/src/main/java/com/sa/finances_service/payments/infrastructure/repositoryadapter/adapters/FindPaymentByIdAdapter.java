@@ -2,6 +2,8 @@ package com.sa.finances_service.payments.infrastructure.repositoryadapter.adapte
 
 import java.util.Optional;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.sa.finances_service.payments.application.outputports.FindPaymentByIdOutputPort;
 import com.sa.finances_service.payments.domain.Payment;
 import com.sa.finances_service.payments.infrastructure.repositoryadapter.mappers.PaymentRepositoryMapper;
@@ -18,6 +20,7 @@ public class FindPaymentByIdAdapter implements FindPaymentByIdOutputPort {
     private final PaymentRepositoryMapper paymentRepositoryMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Payment> findById(String id) {
         return paymentRepository.findById(id)
             .map(paymentRepositoryMapper::toDomain);

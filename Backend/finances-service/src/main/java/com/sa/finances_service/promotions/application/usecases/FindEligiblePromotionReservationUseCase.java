@@ -5,6 +5,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.validation.annotation.Validated;
+
 import com.sa.application.annotations.UseCase;
 import com.sa.finances_service.promotions.application.dtos.FindReservationEligibilityDTO;
 import com.sa.finances_service.promotions.application.inputports.FindEligiblePromotionReservationInputPort;
@@ -15,9 +17,11 @@ import com.sa.finances_service.promotions.domain.PromotionType;
 import com.sa.finances_service.promotions.infrastructure.clientsadapter.adapters.MostPopularRoomsAdapter;
 import com.sa.shared.exceptions.NotFoundException;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @UseCase
+@Validated
 @RequiredArgsConstructor
 public class FindEligiblePromotionReservationUseCase implements FindEligiblePromotionReservationInputPort {
 
@@ -26,7 +30,7 @@ public class FindEligiblePromotionReservationUseCase implements FindEligibleProm
     private final MostPopularRoomsAdapter mostPopularRoomsAdapter;
 
     @Override
-    public Promotion handle(FindReservationEligibilityDTO dto) throws NotFoundException {
+    public Promotion handle(@Valid FindReservationEligibilityDTO dto) throws NotFoundException {
         List<Promotion> foundPromotions = findPromotionsByDateAndHotelOutputPort
             .findByStartDateAndHotel(dto.getStartDate(), dto.getHotelId());
 

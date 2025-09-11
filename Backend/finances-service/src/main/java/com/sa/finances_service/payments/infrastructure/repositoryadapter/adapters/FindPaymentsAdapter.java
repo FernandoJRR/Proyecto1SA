@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.sa.finances_service.payments.application.dtos.FindPaymentsDTO;
 import com.sa.finances_service.payments.application.outputports.FindPaymentsOutputPort;
@@ -28,6 +29,7 @@ public class FindPaymentsAdapter implements FindPaymentsOutputPort {
     private final PaymentRepositoryMapper paymentRepositoryMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public List<Payment> findAll(FindPaymentsDTO f) {
         Specification<PaymentEntity> spec = buildSpec(f);
 

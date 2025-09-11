@@ -1,5 +1,8 @@
 package com.sa.finances_service.payments.application.usecases;
 
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
+
 import com.sa.application.annotations.UseCase;
 import com.sa.finances_service.payments.application.dtos.CreatePaymentDTO;
 import com.sa.finances_service.payments.application.inputports.CreatePaymentInputPort;
@@ -11,9 +14,11 @@ import com.sa.finances_service.promotions.application.outputports.FindPromotionB
 import com.sa.finances_service.promotions.domain.Promotion;
 import com.sa.shared.exceptions.NotFoundException;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @UseCase
+@Validated
 @RequiredArgsConstructor
 public class CreatePaymentUseCase implements CreatePaymentInputPort {
 
@@ -21,7 +26,8 @@ public class CreatePaymentUseCase implements CreatePaymentInputPort {
     private final FindPromotionByIdOutputPort findPromotionByIdOutputPort;
 
     @Override
-    public Payment handle(CreatePaymentDTO createPaymentDTO) throws NotFoundException {
+    @Transactional
+    public Payment handle(@Valid CreatePaymentDTO createPaymentDTO) throws NotFoundException {
         Payment createdPayment = Payment.create(createPaymentDTO.getEstablishmentId(),
                 createPaymentDTO.getClientId(), SourceTypeEnum.valueOf(createPaymentDTO.getSourceType()),
                 createPaymentDTO.getSourceId(),

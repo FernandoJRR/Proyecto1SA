@@ -5,6 +5,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.validation.annotation.Validated;
+
 import com.sa.application.annotations.UseCase;
 import com.sa.finances_service.promotions.application.dtos.FindOrderEligibilityDTO;
 import com.sa.finances_service.promotions.application.inputports.FindEligiblePromotionOrderInputPort;
@@ -15,9 +17,11 @@ import com.sa.finances_service.promotions.domain.Promotion;
 import com.sa.finances_service.promotions.domain.PromotionType;
 import com.sa.shared.exceptions.NotFoundException;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @UseCase
+@Validated
 @RequiredArgsConstructor
 public class FindEligiblePromotionOrderUseCase implements FindEligiblePromotionOrderInputPort {
 
@@ -26,7 +30,7 @@ public class FindEligiblePromotionOrderUseCase implements FindEligiblePromotionO
     private final MostPopularDishesOutputPort mostPopularDishesOutputPort;
 
     @Override
-    public Promotion handle(FindOrderEligibilityDTO dto) throws NotFoundException {
+    public Promotion handle(@Valid FindOrderEligibilityDTO dto) throws NotFoundException {
         List<Promotion> foundPromotions = findPromotionsByDateAndRestaurantOutputPort
             .findByStartDateAndRestaurant(dto.getOrderedAt(), dto.getRestaurantId());
 
