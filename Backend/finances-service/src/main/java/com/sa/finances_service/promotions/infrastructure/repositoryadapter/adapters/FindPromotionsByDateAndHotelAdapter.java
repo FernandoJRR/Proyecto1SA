@@ -3,6 +3,8 @@ package com.sa.finances_service.promotions.infrastructure.repositoryadapter.adap
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.sa.finances_service.promotions.application.outputports.FindPromotionsByDateAndHotelOutputPort;
 import com.sa.finances_service.promotions.domain.Promotion;
 import com.sa.finances_service.promotions.infrastructure.repositoryadapter.mappers.PromotionRepositoryMapper;
@@ -20,6 +22,7 @@ public class FindPromotionsByDateAndHotelAdapter implements FindPromotionsByDate
     private final PromotionRepositoryMapper promotionRepositoryMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public List<Promotion> findByStartDateAndHotel(LocalDate startDate, String hotelId) {
         List<PromotionEntity> result = promotionRepository.findActiveForHotel(hotelId, startDate);
         return promotionRepositoryMapper.toDomain(result);

@@ -2,6 +2,8 @@ package com.sa.finances_service.promotions.infrastructure.repositoryadapter.adap
 
 import java.util.List;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.sa.finances_service.promotions.application.outputports.FindPromotionsOutputPort;
 import com.sa.finances_service.promotions.domain.Promotion;
 import com.sa.finances_service.promotions.infrastructure.repositoryadapter.mappers.PromotionRepositoryMapper;
@@ -19,6 +21,7 @@ public class FindPromotionsAdapter implements FindPromotionsOutputPort {
     private final PromotionRepositoryMapper promotionRepositoryMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public List<Promotion> findAll() {
         List<PromotionEntity> promotionEntities = promotionRepository.findAll();
         return promotionRepositoryMapper.toDomain(promotionEntities);
