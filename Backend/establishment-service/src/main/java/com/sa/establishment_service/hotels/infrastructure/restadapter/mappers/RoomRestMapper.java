@@ -6,14 +6,17 @@ import org.mapstruct.Mapper;
 
 import com.sa.establishment_service.hotels.application.dtos.CreateRoomDTO;
 import com.sa.establishment_service.hotels.application.dtos.RoomWithHotelDTO;
+import com.sa.establishment_service.hotels.application.dtos.UpdateRoomDTO;
 import com.sa.establishment_service.hotels.domain.Room;
 import com.sa.establishment_service.hotels.infrastructure.restadapter.dtos.CreateRoomRequest;
 import com.sa.establishment_service.hotels.infrastructure.restadapter.dtos.RoomResponse;
+import com.sa.establishment_service.hotels.infrastructure.restadapter.dtos.UpdateRoomRequest;
 import com.sa.establishment_service.hotels.infrastructure.restadapter.dtos.RoomWithHotelResponse;
 
 @Mapper(componentModel = "spring")
 public interface RoomRestMapper {
     public CreateRoomDTO toDTO(CreateRoomRequest createRoomRequest);
+    public UpdateRoomDTO toDTO(UpdateRoomRequest updateRoomRequest);
     public RoomResponse toResponse(Room room);
     public RoomWithHotelResponse toResponse(RoomWithHotelDTO room);
     public List<RoomWithHotelResponse> toResponseList(List<RoomWithHotelDTO> room);
