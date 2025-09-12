@@ -56,8 +56,10 @@ import MenuShortcutCard from "~/components/cards/MenuShortcutCard.vue";
 import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
 import InputText from 'primevue/inputtext';
+import { getRoleNameFromEmployee, canAccessAdmin, canAccessOrdenes, canAccessReservaciones, canAccessReportes } from "~/lib/auth/roles";
 
-const { user } = storeToRefs(useAuthStore());
+const { user, employee } = storeToRefs(useAuthStore());
+const role = computed(() => getRoleNameFromEmployee(employee.value));
 
 // Search
 const q = ref('');
@@ -91,14 +93,23 @@ const menus = reactive([
   },
 ]);
 
+function canSeeRoute(route: string): boolean {
+  if (route.startsWith('/admin')) return canAccessAdmin(role.value)
+  if (route.startsWith('/ordenes')) return canAccessOrdenes(role.value)
+  if (route.startsWith('/reservaciones')) return canAccessReservaciones(role.value)
+  if (route.startsWith('/reportes')) return canAccessReportes(role.value)
+  return true
+}
+
 const filteredMenus = computed(() => {
   const term = q.value.toLowerCase();
-  if (!term) return menus;
-  return menus.filter(m =>
+  const base = menus.filter(m => canSeeRoute(m.route))
+  if (!term) return base
+  return base.filter(m =>
     m.title.toLowerCase().includes(term) ||
     m.description.toLowerCase().includes(term) ||
     m.route.toLowerCase().includes(term)
-  );
+  )
 });
 
 // Expose for debugging

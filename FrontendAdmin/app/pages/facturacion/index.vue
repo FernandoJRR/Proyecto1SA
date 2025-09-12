@@ -8,9 +8,6 @@
     </NuxtLink>
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 class="text-2xl font-extrabold tracking-tight text-slate-900">Pagos</h1>
-        <router-link to="/facturacion/crear">
-          <Button icon="pi pi-plus" label="Nuevo pago" rounded raised />
-        </router-link>
       </div>
     </header>
 
