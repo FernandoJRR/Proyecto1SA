@@ -73,6 +73,13 @@ export interface EmployeeSalaryUpdatePayload {
   salaryDate: Date;
 }
 
+// Minimal edit payload for simple updates
+export interface EmployeeBasicUpdatePayload {
+  firstName: string;
+  lastName: string;
+  salary: number | string;
+}
+
 export interface EmployeeDeactivationPayload {
   deactivationDate: Date;
   historyTypeId: { id: string };
@@ -141,6 +148,21 @@ export const updateEmployeeSalary = async (
 ) => {
   const response = await $api<Employee>(
     `${CURRENT_EMPLOYEE_URI}/${employeeId}/salary`,
+    {
+      method: "PATCH",
+      body: data,
+    }
+  );
+  return response;
+};
+
+// Update only basic fields (firstName, lastName, salary)
+export const updateEmployeeBasic = async (
+  data: EmployeeBasicUpdatePayload,
+  employeeId: string
+) => {
+  const response = await $api<Employee>(
+    `${CURRENT_EMPLOYEE_URI}/${employeeId}`,
     {
       method: "PATCH",
       body: data,
