@@ -22,9 +22,14 @@ public class UpdateRestaurantAdapter implements UpdateRestaurantOutputPort {
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public Restaurant updateRestaurant(Restaurant restaurant) {
-        RestaurantEntity entity = restaurantRepositoryMapper.toEntity(restaurant);
-        RestaurantEntity saved = restaurantRepository.save(entity);
+        RestaurantEntity existing = restaurantRepository.findById(restaurant.getId().toString())
+            .orElseThrow(() -> new IllegalStateException("Restaurant to update not found"));
+
+        // Only update scalar fields to avoid altering dish associations
+        existing.setName(restaurant.getName());
+        existing.setAddress(restaurant.getAddress());
+
+        RestaurantEntity saved = restaurantRepository.save(existing);
         return restaurantRepositoryMapper.toDomain(saved);
     }
 }
-

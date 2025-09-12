@@ -28,22 +28,22 @@ class UpdateRestaurantAdapterTest {
     }
 
     @Test
-    void updateRestaurant_mapsAndPersists_thenMapsBack() {
-        Restaurant domain = Restaurant.create("N", "A", null);
+    void updateRestaurant_updatesScalarFields_thenMapsBack() {
         java.util.UUID id = java.util.UUID.randomUUID();
-        RestaurantEntity entity = new RestaurantEntity(id, "N", "A", null);
-        RestaurantEntity savedEntity = new RestaurantEntity(id, "N2", "A2", null);
-        Restaurant mappedBack = Restaurant.create("N2", "A2", null);
+        Restaurant domain = new Restaurant(id, "NewName", "NewAddr", null);
+        RestaurantEntity existing = new RestaurantEntity(id, "OldName", "OldAddr", null);
+        RestaurantEntity saved = new RestaurantEntity(id, "NewName", "NewAddr", null);
+        Restaurant mappedBack = new Restaurant(id, "NewName", "NewAddr", null);
 
-        when(restaurantRepositoryMapper.toEntity(domain)).thenReturn(entity);
-        when(restaurantRepository.save(entity)).thenReturn(savedEntity);
-        when(restaurantRepositoryMapper.toDomain(savedEntity)).thenReturn(mappedBack);
+        when(restaurantRepository.findById(id.toString())).thenReturn(java.util.Optional.of(existing));
+        when(restaurantRepository.save(existing)).thenReturn(saved);
+        when(restaurantRepositoryMapper.toDomain(saved)).thenReturn(mappedBack);
 
         Restaurant result = adapter.updateRestaurant(domain);
 
         assertEquals(mappedBack, result);
-        verify(restaurantRepositoryMapper).toEntity(domain);
-        verify(restaurantRepository).save(entity);
-        verify(restaurantRepositoryMapper).toDomain(savedEntity);
+        verify(restaurantRepository).findById(id.toString());
+        verify(restaurantRepository).save(existing);
+        verify(restaurantRepositoryMapper).toDomain(saved);
     }
 }

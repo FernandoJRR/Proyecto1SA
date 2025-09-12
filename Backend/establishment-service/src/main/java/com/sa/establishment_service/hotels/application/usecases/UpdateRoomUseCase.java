@@ -38,7 +38,7 @@ public class UpdateRoomUseCase implements UpdateRoomInputPort {
             .orElseThrow(() -> new NotFoundException("La habitacion buscada no existe o no esta en el hotel indicado."));
 
         List<Room> rooms = foundHotel.getRooms();
-        if (rooms.stream().anyMatch(room -> room.getNumber().equals(updateRoomDTO.getNumber()))) {
+        if (rooms.stream().anyMatch(room -> room.getNumber().equals(updateRoomDTO.getNumber()) && !room.getId().toString().equals(roomId))) {
             throw new DuplicatedEntryException("El numero de habitacion ya existe");
         }
 

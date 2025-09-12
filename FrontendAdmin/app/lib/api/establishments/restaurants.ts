@@ -94,3 +94,24 @@ export async function createDish(restaurant_id: string, payload: CreateDishPaylo
     body: payload
   })
 }
+
+// Payload para actualizar un platillo
+export interface UpdateDishPayload {
+  name: string;
+  price: number;
+}
+
+/**
+ * Actualiza un platillo específico de un restaurante.
+ * Endpoint: PATCH /v1/restaurants/{restaurantId}/dishes/{dishId}
+ */
+export async function updateDish(
+  restaurant_id: string,
+  dish_id: string,
+  payload: UpdateDishPayload
+) {
+  return await $api<Dish>(`${CURRENT_RESTAURANTS_URI}/${restaurant_id}/dishes/${dish_id}`, {
+    method: 'PATCH',
+    body: payload,
+  })
+}

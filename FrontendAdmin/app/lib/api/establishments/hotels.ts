@@ -100,3 +100,25 @@ export async function getHotelRoom(hotel_id: string, room_id: string) {
     method: 'GET',
   })
 }
+
+// Payload para actualizar una habitación
+export interface UpdateRoomPayload {
+  number: string;
+  pricePerNight: number;
+  capacity: number;
+}
+
+/**
+ * Actualiza una habitación específica de un hotel.
+ * Endpoint: PATCH /v1/hotels/{hotelId}/rooms/{roomId}
+ */
+export async function updateHotelRoom(
+  hotel_id: string,
+  room_id: string,
+  payload: UpdateRoomPayload
+) {
+  return await $api<Room>(`${CURRENT_HOTELS_URI}/${hotel_id}/rooms/${room_id}`, {
+    method: 'PATCH',
+    body: payload,
+  })
+}
