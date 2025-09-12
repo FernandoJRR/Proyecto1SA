@@ -9,6 +9,16 @@
           </router-link>
           <h1 class="text-2xl font-extrabold tracking-tight text-slate-900">Detalle de Orden</h1>
         </div>
+        <div class="flex items-center gap-2">
+          <Button
+            icon="pi pi-download"
+            label="Factura"
+            size="small"
+            severity="info"
+            :disabled="state.status !== 'success'"
+            @click="onExportInvoice"
+          />
+        </div>
       </div>
     </header>
 
@@ -92,7 +102,7 @@
 <script setup lang="ts">
 import Tag from 'primevue/tag'
 import { useRoute } from 'vue-router'
-import { getOrderById } from '~/lib/api/orders/orders'
+import { getOrderById, exportOrderInvoicePDF } from '~/lib/api/orders/orders'
 
 const route = useRoute()
 
@@ -127,5 +137,15 @@ function promoLabel(p: any) {
   if (p.percentOff) parts.push(`${p.percentOff}% off`)
   if (p.amountOff) parts.push(`- ${formatGTQ(p.amountOff)}`)
   return parts.join(' · ')
+}
+
+async function onExportInvoice() {
+  const o = order.value as any
+  if (!o) return
+  try {
+    await exportOrderInvoicePDF(o, { restaurant: o.restaurant })
+  } catch (e) {
+    console.error('Error exportando factura:', e)
+  }
 }
 </script>

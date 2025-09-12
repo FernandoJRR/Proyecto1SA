@@ -9,6 +9,24 @@
           </router-link>
           <h1 class="text-2xl font-extrabold tracking-tight text-slate-900">Detalle de Reservación</h1>
         </div>
+        <div class="flex items-center gap-2">
+          <Button
+            icon="pi pi-file"
+            label="Comprobante"
+            size="small"
+            severity="secondary"
+            :disabled="state.status !== 'success'"
+            @click="onExportProof"
+          />
+          <Button
+            icon="pi pi-download"
+            label="Factura"
+            size="small"
+            severity="info"
+            :disabled="state.status !== 'success'"
+            @click="onExportInvoice"
+          />
+        </div>
       </div>
     </header>
 
@@ -110,7 +128,7 @@
 
 <script setup lang="ts">
 import { Tag } from 'primevue'
-import { getReservationById } from '~/lib/api/reservations/reservations'
+import { getReservationById, exportReservationProofPDF, exportReservationInvoicePDF } from '~/lib/api/reservations/reservations'
 import { getHotelById, getHotelRooms } from '~/lib/api/establishments/hotels'
 
 const route = useRoute()
@@ -177,5 +195,25 @@ function statusLabel(s?: string) {
   if (!s) return '—'
   const m: Record<string, string> = { AVAILABLE: 'Disponible', OCCUPIED: 'Ocupada', MAINTENANCE: 'Mantenimiento' }
   return m[s] || s
+}
+
+async function onExportProof() {
+  const r = reservation.value as any
+  if (!r) return
+  try {
+    await exportReservationProofPDF(r, { hotel: hotel.value as any, room: room.value as any })
+  } catch (e) {
+    console.error('Error exportando comprobante:', e)
+  }
+}
+
+async function onExportInvoice() {
+  const r = reservation.value as any
+  if (!r) return
+  try {
+    await exportReservationInvoicePDF(r, { hotel: hotel.value as any, room: room.value as any })
+  } catch (e) {
+    console.error('Error exportando factura:', e)
+  }
 }
 </script>

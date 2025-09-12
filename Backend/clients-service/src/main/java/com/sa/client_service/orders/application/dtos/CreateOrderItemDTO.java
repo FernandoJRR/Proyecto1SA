@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class CreateOrderItemDTO {
-    @NotBlank(message = "El ID del platillo es obligatorio")
+    @NotNull(message = "El ID del platillo es obligatorio")
     private UUID dishId;
 
     @NotNull(message = "La cantidad de consumo es obligatoria")
