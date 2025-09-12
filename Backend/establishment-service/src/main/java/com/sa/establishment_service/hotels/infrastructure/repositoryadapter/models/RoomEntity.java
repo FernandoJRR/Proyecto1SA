@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @DynamicUpdate
 public class RoomEntity extends AuditorEntity {
-    @Column(nullable = false, length = 10, unique = true)
+    @Column(nullable = false, unique = true)
     private String number;
 
     @Enumerated(EnumType.STRING)
