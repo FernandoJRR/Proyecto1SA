@@ -51,12 +51,29 @@ export interface CreateHotelPayload {
   maintenanceCostPerWeek: number;
 }
 
+// Update payload is same shape as create for this endpoint
+export interface UpdateHotelPayload {
+  name: string;
+  address: string;
+  maintenanceCostPerWeek: number;
+}
+
 /**
  * Crea un hotel nuevo.
  */
 export async function createHotel(payload: CreateHotelPayload) {
   return await $api<Hotel>(`${CURRENT_HOTELS_URI}`, {
     method: 'POST',
+    body: payload,
+  })
+}
+
+/**
+ * Actualiza un hotel por su id.
+ */
+export async function updateHotel(hotel_id: string, payload: UpdateHotelPayload) {
+  return await $api<Hotel>(`${CURRENT_HOTELS_URI}/${hotel_id}`, {
+    method: 'PATCH',
     body: payload,
   })
 }
