@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,15 +17,18 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sa.employee_service.employees.application.dtos.CreateEmployeeDTO;
+import com.sa.employee_service.employees.application.dtos.UpdateEmployeeDTO;
 import com.sa.employee_service.employees.application.inputports.CreateEmployeeInputPort;
 import com.sa.employee_service.employees.application.inputports.FindAllEmployeesInputPort;
 import com.sa.employee_service.employees.application.inputports.FindEmployeeByIdInputPort;
 import com.sa.employee_service.employees.application.inputports.FindEmployeeByUsernameInputPort;
 import com.sa.employee_service.employees.application.inputports.FindEmployeesByTypeInputPort;
+import com.sa.employee_service.employees.application.inputports.UpdateEmployeeInputPort;
 import com.sa.employee_service.employees.domain.Employee;
 import com.sa.employee_service.employees.infrastructure.restadapter.dtos.CreateEmployeeRequest;
 import com.sa.employee_service.employees.infrastructure.restadapter.mappers.EmployeeResponseMapper;
 import com.sa.employee_service.employees.infrastructure.restadapter.mappers.EmployeeRestMapper;
+import com.sa.employee_service.employees.infrastructure.restadapter.dtos.UpdateEmployeeRequest;
 import com.sa.shared.exceptions.DuplicatedEntryException;
 import com.sa.shared.exceptions.InvalidParameterException;
 import com.sa.shared.exceptions.NotFoundException;
@@ -48,6 +52,7 @@ public class EmployeesController {
     private final FindEmployeeByIdInputPort findEmployeeByIdInputPort;
     private final FindAllEmployeesInputPort findAllEmployeesInputPort;
     private final FindEmployeeByUsernameInputPort findEmployeeByUsernameInputPort;
+    private final UpdateEmployeeInputPort updateEmployeeInputPort;
 
     private final EmployeeRestMapper employeeRestMapper;
     private final EmployeeResponseMapper employeeResponseMapper;
@@ -75,36 +80,29 @@ public class EmployeesController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    /*
-    @Operation(summary = "Edita un empleado", description = "Este endpoint permite la edición de un empleado en el sistema.")
+    @Operation(summary = "Edita un empleado", description = "Permite editar primer nombre, apellido y salario.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Empleado editado exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = EmployeeResponseDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Solicitud inválida, usualmente por error en la validacion de parametros.", content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "404", description = "Recursos no econtrados, el usuario a editar no existe o el tipo de empleado no existe.", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400", description = "Solicitud inválida", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado", content = @Content(mediaType = "application/json")),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor")
-
     })
     @PreAuthorize("hasAuthority('EDIT_EMPLOYEE')")
     @PatchMapping("/{employeeId}")
     public ResponseEntity<EmployeeResponseDTO> updateEmployee(
             @PathVariable("employeeId") String employeeId,
-            @RequestBody @Valid EmployeeRequestDTO request)
+            @RequestBody UpdateEmployeeRequest request)
             throws NotFoundException {
 
-        // extraer los parametros para la creacion del employee
-        EmployeeEntity newEmployee = employeeMapper.fromEmployeeRequestDtoToEmployee(request);
-        EmployeeTypeEntity employeeType = employeeTypeMapper
-                .fromIdRequestDtoToEmployeeType(request.getEmployeeTypeId());
-
-        // mandar a editar el employee al port
-        EmployeeEntity result = employeesPort.updateEmployee(employeeId, newEmployee, employeeType);
-
-        // convertir el Employee al dto
-        EmployeeResponseDTO response = employeeMapper.fromEmployeeToResponse(result);
-
+            System.out.println("QUIZAAAA");
+            System.out.println(request.getFirstName());
+        UpdateEmployeeDTO updateDTO = employeeRestMapper.toDTO(request);
+            System.out.println("QUIZAAAA");
+            System.out.println(updateDTO.getFirstName());
+        Employee result = updateEmployeeInputPort.handle(employeeId, updateDTO);
+        EmployeeResponseDTO response = employeeResponseMapper.toResponse(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
-    */
 
     @Operation(summary = "Busca un empleado", description = "Este endpoint permite la busqueda de un empleado en base a su Id.")
     @ApiResponses(value = {
