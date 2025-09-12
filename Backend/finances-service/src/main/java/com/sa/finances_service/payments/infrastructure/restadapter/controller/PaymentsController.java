@@ -68,7 +68,11 @@ public class PaymentsController {
             @RequestBody CreatePaymentRequest request)
             throws NotFoundException {
 
+        System.out.println("PRIIIINT");
+        System.out.println(request.getCardNumber());
         CreatePaymentDTO createPaymentDTO = paymentRestMapper.toDTO(request);
+        System.out.println("PROOOOON");
+        System.out.println(createPaymentDTO.getCardNumber());
 
         Payment result = createPaymentInputPort.handle(createPaymentDTO);
 

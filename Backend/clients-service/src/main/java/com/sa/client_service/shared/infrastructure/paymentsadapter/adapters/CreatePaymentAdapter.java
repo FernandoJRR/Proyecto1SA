@@ -22,6 +22,8 @@ public class CreatePaymentAdapter implements CreatePaymentOutputPort {
     @Override
     public boolean createPayment(CreatePaymentDTO createPaymentDTO) {
         final String REQUEST_URL = FINANCES_SERVICE_URL+"/api/v1/payments";
+        System.out.println("NUMEROROOOO");
+        System.out.println(createPaymentDTO.getCardNumber());
 
         try {
             restClient.post()

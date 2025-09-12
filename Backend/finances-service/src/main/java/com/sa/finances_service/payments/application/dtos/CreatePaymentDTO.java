@@ -41,7 +41,7 @@ public class CreatePaymentDTO {
     private BigDecimal subtotal;
 
     @Size(min = 4, max = 19, message = "El numero de tarjeta debe tener entre 4 y 19 caracteres.")
-    @Pattern(regexp = "\\d", message = "El numero de tarjeta debe de ser un numero.")
+    @Pattern(regexp = "\\d+", message = "El numero de tarjeta debe de ser un numero.")
     private String cardNumber;
 
     private String promotionId;
