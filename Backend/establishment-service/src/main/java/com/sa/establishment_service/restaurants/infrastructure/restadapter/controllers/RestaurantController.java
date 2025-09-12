@@ -9,9 +9,11 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,6 +21,7 @@ import com.sa.establishment_service.restaurants.application.dtos.CreateDishDTO;
 import com.sa.establishment_service.restaurants.application.dtos.CreateRestaurantDTO;
 import com.sa.establishment_service.restaurants.application.dtos.ExistDishesDTO;
 import com.sa.establishment_service.restaurants.application.dtos.ExistDishesResultDTO;
+import com.sa.establishment_service.restaurants.application.dtos.UpdateRestaurantDTO;
 import com.sa.establishment_service.restaurants.application.inputports.CreateDishInputPort;
 import com.sa.establishment_service.restaurants.application.inputports.CreateRestaurantInputPort;
 import com.sa.establishment_service.restaurants.application.inputports.ExistDishesRestaurantInputPort;
@@ -28,6 +31,7 @@ import com.sa.establishment_service.restaurants.application.inputports.FindDishB
 import com.sa.establishment_service.restaurants.application.inputports.FindDishesByRestaurantInputPort;
 import com.sa.establishment_service.restaurants.application.inputports.FindRestaurantByIdInputPort;
 import com.sa.establishment_service.restaurants.application.inputports.FindRestaurantsByHotelInputPort;
+import com.sa.establishment_service.restaurants.application.inputports.UpdateRestaurantInputPort;
 import com.sa.establishment_service.restaurants.domain.Dish;
 import com.sa.establishment_service.restaurants.domain.Restaurant;
 import com.sa.establishment_service.restaurants.infrastructure.restadapter.dtos.CreateDishRequest;
@@ -37,6 +41,7 @@ import com.sa.establishment_service.restaurants.infrastructure.restadapter.dtos.
 import com.sa.establishment_service.restaurants.infrastructure.restadapter.dtos.ExistsDishesResponse;
 import com.sa.establishment_service.restaurants.infrastructure.restadapter.dtos.FilterDishesRequest;
 import com.sa.establishment_service.restaurants.infrastructure.restadapter.dtos.RestaurantResponse;
+import com.sa.establishment_service.restaurants.infrastructure.restadapter.dtos.UpdateRestaurantRequest;
 import com.sa.establishment_service.restaurants.infrastructure.restadapter.mappers.DishRestMapper;
 import com.sa.establishment_service.restaurants.infrastructure.restadapter.mappers.RestaurantRestMapper;
 import com.sa.shared.exceptions.DuplicatedEntryException;
@@ -67,6 +72,7 @@ public class RestaurantController {
     private final FindRestaurantsByHotelInputPort findRestaurantsByHotelInputPort;
     private final FindDishesByRestaurantInputPort findDishesByRestaurantInputPort;
     private final FindDishByIdInputPort findDishByIdInputPort;
+    private final UpdateRestaurantInputPort updateRestaurantInputPort;
 
     @Operation(summary = "Crear un nuevo restaurante", description = "Este endpoint permite la creación de un nuevo restaurante en el sistema.")
     @ApiResponses(value = {
@@ -203,6 +209,24 @@ public class RestaurantController {
         DishResponse response = dishRestMapper.toResponse(result);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "Actualizar un restaurante", description = "Este endpoint permite actualizar un restaurante existente (nombre y direccion).")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Restaurante actualizado exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = RestaurantResponse.class))),
+            @ApiResponse(responseCode = "404", description = "El restaurante no fue encontrado", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400", description = "Solicitud inválida", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    @PatchMapping("/{restaurantId}")
+    @PreAuthorize("hasAuthority('EDIT_RESTAURANT')")
+    public ResponseEntity<RestaurantResponse> updateRestaurant(
+            @PathVariable("restaurantId") String restaurantId,
+            @RequestBody UpdateRestaurantRequest request) throws NotFoundException {
+        UpdateRestaurantDTO dto = restaurantRestMapper.toDTO(request);
+        Restaurant updated = updateRestaurantInputPort.handle(restaurantId, dto);
+        RestaurantResponse response = restaurantRestMapper.toResponse(updated);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Operation(summary = "Crear un nuevo platillo", description = "Este endpoint permite la creación de un nuevo platillo en el sistema.")
