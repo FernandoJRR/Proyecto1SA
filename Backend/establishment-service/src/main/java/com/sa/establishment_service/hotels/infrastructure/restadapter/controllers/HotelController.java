@@ -12,17 +12,21 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sa.establishment_service.hotels.application.dtos.CreateHotelDTO;
 import com.sa.establishment_service.hotels.application.dtos.CreateRoomDTO;
 import com.sa.establishment_service.hotels.application.dtos.RoomWithHotelDTO;
+import com.sa.establishment_service.hotels.application.dtos.UpdateHotelDTO;
 import com.sa.establishment_service.hotels.application.inputports.CreateHotelInputPort;
 import com.sa.establishment_service.hotels.application.inputports.CreateRoomInputPort;
+import com.sa.establishment_service.hotels.application.inputports.UpdateHotelInputPort;
 import com.sa.establishment_service.hotels.application.inputports.ExistsHotelByIdInputPort;
 import com.sa.establishment_service.hotels.application.inputports.ExistsRoomByIdInputPort;
 import com.sa.establishment_service.hotels.application.inputports.ExistsRoomInHotelByIdInputPort;
@@ -36,6 +40,7 @@ import com.sa.establishment_service.hotels.domain.Room;
 import com.sa.establishment_service.hotels.infrastructure.restadapter.dtos.CreateHotelRequest;
 import com.sa.establishment_service.hotels.infrastructure.restadapter.dtos.CreateRoomRequest;
 import com.sa.establishment_service.hotels.infrastructure.restadapter.dtos.HotelResponse;
+import com.sa.establishment_service.hotels.infrastructure.restadapter.dtos.UpdateHotelRequest;
 import com.sa.establishment_service.hotels.infrastructure.restadapter.dtos.RoomResponse;
 import com.sa.establishment_service.hotels.infrastructure.restadapter.dtos.RoomWithHotelResponse;
 import com.sa.establishment_service.hotels.infrastructure.restadapter.mappers.HotelRestMapper;
@@ -66,6 +71,7 @@ public class HotelController {
     private final ExistsHotelByIdInputPort existsHotelByIdInputPort;
     private final FindHotelByIdInputPort findHotelByIdInputPort;
     private final FindAllRoomsInputPort findAllRoomsInputPort;
+    private final UpdateHotelInputPort updateHotelInputPort;
 
     private final HotelRestMapper hotelRestMapper;
     private final RoomRestMapper roomRestMapper;
@@ -163,6 +169,25 @@ public class HotelController {
 
         RoomResponse response = roomRestMapper.toResponse(result);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "Actualizar un hotel", description = "Este endpoint permite actualizar un hotel existente (nombre, direccion y costo de mantenimiento semanal).")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Hotel actualizado exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = HotelResponse.class))),
+            @ApiResponse(responseCode = "404", description = "El hotel no fue encontrado", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400", description = "Solicitud inválida", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    @PatchMapping("/{hotelId}")
+    @PreAuthorize("hasAuthority('EDIT_HOTEL')")
+    public ResponseEntity<HotelResponse> updateHotel(
+            @PathVariable("hotelId") String hotelId,
+            @RequestBody UpdateHotelRequest request) throws NotFoundException {
+
+        UpdateHotelDTO updateHotelDTO = hotelRestMapper.toDTO(request);
+        Hotel updated = updateHotelInputPort.handle(hotelId, updateHotelDTO);
+        HotelResponse response = hotelRestMapper.toResponse(updated);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Operation(summary = "Obtener un hotel", description = "Este endpoint permite obtener un hotel del sistema")
