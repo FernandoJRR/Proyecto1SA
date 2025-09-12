@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sa.establishment_service.restaurants.application.dtos.CreateDishDTO;
 import com.sa.establishment_service.restaurants.application.dtos.CreateRestaurantDTO;
+import com.sa.establishment_service.restaurants.application.dtos.UpdateDishDTO;
 import com.sa.establishment_service.restaurants.application.dtos.ExistDishesDTO;
 import com.sa.establishment_service.restaurants.application.dtos.ExistDishesResultDTO;
 import com.sa.establishment_service.restaurants.application.dtos.UpdateRestaurantDTO;
@@ -31,12 +32,14 @@ import com.sa.establishment_service.restaurants.application.inputports.FindDishB
 import com.sa.establishment_service.restaurants.application.inputports.FindDishesByRestaurantInputPort;
 import com.sa.establishment_service.restaurants.application.inputports.FindRestaurantByIdInputPort;
 import com.sa.establishment_service.restaurants.application.inputports.FindRestaurantsByHotelInputPort;
+import com.sa.establishment_service.restaurants.application.inputports.UpdateDishInputPort;
 import com.sa.establishment_service.restaurants.application.inputports.UpdateRestaurantInputPort;
 import com.sa.establishment_service.restaurants.domain.Dish;
 import com.sa.establishment_service.restaurants.domain.Restaurant;
 import com.sa.establishment_service.restaurants.infrastructure.restadapter.dtos.CreateDishRequest;
 import com.sa.establishment_service.restaurants.infrastructure.restadapter.dtos.CreateRestaurantRequest;
 import com.sa.establishment_service.restaurants.infrastructure.restadapter.dtos.DishResponse;
+import com.sa.establishment_service.restaurants.infrastructure.restadapter.dtos.UpdateDishRequest;
 import com.sa.establishment_service.restaurants.infrastructure.restadapter.dtos.ExistsDishesRequest;
 import com.sa.establishment_service.restaurants.infrastructure.restadapter.dtos.ExistsDishesResponse;
 import com.sa.establishment_service.restaurants.infrastructure.restadapter.dtos.FilterDishesRequest;
@@ -73,6 +76,7 @@ public class RestaurantController {
     private final FindDishesByRestaurantInputPort findDishesByRestaurantInputPort;
     private final FindDishByIdInputPort findDishByIdInputPort;
     private final UpdateRestaurantInputPort updateRestaurantInputPort;
+    private final UpdateDishInputPort updateDishInputPort;
 
     @Operation(summary = "Crear un nuevo restaurante", description = "Este endpoint permite la creación de un nuevo restaurante en el sistema.")
     @ApiResponses(value = {
@@ -249,6 +253,25 @@ public class RestaurantController {
         DishResponse response = dishRestMapper.toResponse(result);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "Actualizar un platillo", description = "Este endpoint permite actualizar un platillo (nombre y precio).")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Platillo actualizado exitosamente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DishResponse.class))),
+            @ApiResponse(responseCode = "404", description = "El platillo o restaurante no fue encontrado", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "400", description = "Solicitud inválida", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
+    @PatchMapping("/{restaurantId}/dishes/{dishId}")
+    @PreAuthorize("hasAuthority('EDIT_DISH')")
+    public ResponseEntity<DishResponse> updateDish(
+            @PathVariable("restaurantId") String restaurantId,
+            @PathVariable("dishId") String dishId,
+            @RequestBody UpdateDishRequest request) throws NotFoundException {
+        UpdateDishDTO dto = dishRestMapper.toDTO(request);
+        Dish updated = updateDishInputPort.handle(restaurantId, dishId, dto);
+        DishResponse response = dishRestMapper.toResponse(updated);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PostMapping("/{restaurantId}/dishes/query")
