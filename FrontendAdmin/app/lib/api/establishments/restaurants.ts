@@ -55,12 +55,27 @@ export interface CreateRestaurantPayload {
   hotelId?: string | null;
 }
 
+export interface UpdateRestaurantPayload {
+  name: string;
+  address: string;
+}
+
 /**
  * Crea un restaurante nuevo. (hotelId es opcional)
  */
 export async function createRestaurant(payload: CreateRestaurantPayload) {
   return await $api<Restaurant>(`${CURRENT_RESTAURANTS_URI}`, {
     method: 'POST',
+    body: payload
+  })
+}
+
+/**
+ * Actualiza un restaurante existente por su id.
+ */
+export async function updateRestaurant(restaurant_id: string, payload: UpdateRestaurantPayload) {
+  return await $api<Restaurant>(`${CURRENT_RESTAURANTS_URI}/${restaurant_id}`, {
+    method: 'PATCH',
     body: payload
   })
 }
