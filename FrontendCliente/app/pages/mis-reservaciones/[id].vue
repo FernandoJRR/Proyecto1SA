@@ -37,6 +37,10 @@
             <div class="text-right">
               <div class="text-xs uppercase tracking-wide text-slate-500">Total</div>
               <div class="text-2xl font-extrabold text-slate-900">{{ formatGTQ(reservation.totalCost) }}</div>
+              <div class="mt-3 flex flex-col sm:flex-row gap-2 sm:justify-end">
+                <Button size="small" outlined icon="pi pi-file" label="Comprobante" @click="onDownloadProof" />
+                <Button size="small" icon="pi pi-file-pdf" label="Factura" @click="onDownloadBill" />
+              </div>
             </div>
           </div>
 
@@ -142,7 +146,7 @@ import Button from 'primevue/button'
 import Rating from 'primevue/rating'
 import Textarea from 'primevue/textarea'
 import { toast } from 'vue-sonner'
-import { getReservationById, type Reservation } from '~/lib/api/reservations/reservations'
+import { getReservationById, type Reservation, exportReservationBillPdf, exportReservationProofPdf } from '~/lib/api/reservations/reservations'
 import { createReview, getReviews, type Review as RoomReview } from '~/lib/api/reviews/reviews'
 
 const route = useRoute()
@@ -273,6 +277,24 @@ async function submitReview() {
     toast.error(reviewError.value)
   } finally {
     submittingReview.value = false
+  }
+}
+
+async function onDownloadProof() {
+  if (!reservation.value) return
+  try {
+    await exportReservationProofPdf(reservation.value)
+  } catch (e: any) {
+    toast.error(e?.message || 'No se pudo generar el comprobante')
+  }
+}
+
+async function onDownloadBill() {
+  if (!reservation.value) return
+  try {
+    await exportReservationBillPdf(reservation.value)
+  } catch (e: any) {
+    toast.error(e?.message || 'No se pudo generar la factura')
   }
 }
 </script>
