@@ -24,6 +24,14 @@ import com.sa.client_service.reservations.domain.Reservation;
 import com.sa.client_service.reservations.infrastructure.repositoryadapter.mappers.ReservationRepositoryMapper;
 import com.sa.client_service.reservations.infrastructure.repositoryadapter.models.ReservationEntity;
 import com.sa.client_service.reservations.infrastructure.repositoryadapter.repositories.ReservationRepository;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(MockitoExtension.class)
 public class FindReservationsAdapterTest {
@@ -72,5 +80,94 @@ public class FindReservationsAdapterTest {
 
         assertTrue(results.isEmpty());
         verify(reservationRepository, times(1)).findAll(any(Specification.class));
+    }
+
+    @Test
+    void givenStartAndEnd_whenFindReservations_buildsOverlappingDateSpec() {
+        LocalDate start = LocalDate.of(2024, 1, 10);
+        LocalDate end = LocalDate.of(2024, 1, 20);
+
+        when(reservationRepository.findAll(any(Specification.class)))
+            .thenReturn(Collections.emptyList());
+
+        adapter.findReservations(null, null, null, start, end);
+
+        ArgumentCaptor<Specification<ReservationEntity>> captor = ArgumentCaptor.forClass(Specification.class);
+        verify(reservationRepository).findAll(captor.capture());
+
+        Specification<ReservationEntity> spec = captor.getValue();
+
+        Root<ReservationEntity> root = Mockito.mock(Root.class, Mockito.RETURNS_DEEP_STUBS);
+        CriteriaQuery<?> query = Mockito.mock(CriteriaQuery.class);
+        CriteriaBuilder cb = Mockito.mock(CriteriaBuilder.class);
+
+        Predicate p1 = Mockito.mock(Predicate.class);
+        Predicate p2 = Mockito.mock(Predicate.class);
+        Predicate pAnd = Mockito.mock(Predicate.class);
+
+        when(cb.lessThanOrEqualTo(Mockito.<Expression<LocalDate>>any(), eq(end))).thenReturn(p1);
+        when(cb.greaterThanOrEqualTo(Mockito.<Expression<LocalDate>>any(), eq(start))).thenReturn(p2);
+        when(cb.and(p1, p2)).thenReturn(pAnd);
+
+        Predicate built = spec.toPredicate(root, query, cb);
+
+        assertTrue(built == pAnd);
+        verify(cb).lessThanOrEqualTo(Mockito.<Expression<LocalDate>>any(), eq(end));
+        verify(cb).greaterThanOrEqualTo(Mockito.<Expression<LocalDate>>any(), eq(start));
+        verify(cb).and(p1, p2);
+    }
+
+    @Test
+    void givenOnlyStart_whenFindReservations_buildsEndAfterOrEqualSpec() {
+        LocalDate start = LocalDate.of(2024, 2, 1);
+
+        when(reservationRepository.findAll(any(Specification.class)))
+            .thenReturn(Collections.emptyList());
+
+        adapter.findReservations(null, null, null, start, null);
+
+        ArgumentCaptor<Specification<ReservationEntity>> captor = ArgumentCaptor.forClass(Specification.class);
+        verify(reservationRepository).findAll(captor.capture());
+
+        Specification<ReservationEntity> spec = captor.getValue();
+
+        Root<ReservationEntity> root = Mockito.mock(Root.class, Mockito.RETURNS_DEEP_STUBS);
+        CriteriaQuery<?> query = Mockito.mock(CriteriaQuery.class);
+        CriteriaBuilder cb = Mockito.mock(CriteriaBuilder.class);
+
+        Predicate p = Mockito.mock(Predicate.class);
+        when(cb.greaterThanOrEqualTo(Mockito.<Expression<LocalDate>>any(), eq(start))).thenReturn(p);
+
+        Predicate built = spec.toPredicate(root, query, cb);
+        assertTrue(built == p);
+        verify(cb).greaterThanOrEqualTo(Mockito.<Expression<LocalDate>>any(), eq(start));
+        Mockito.verify(cb, Mockito.never()).lessThanOrEqualTo(Mockito.<Expression<LocalDate>>any(), any(LocalDate.class));
+    }
+
+    @Test
+    void givenOnlyEnd_whenFindReservations_buildsStartBeforeOrEqualSpec() {
+        LocalDate end = LocalDate.of(2024, 3, 15);
+
+        when(reservationRepository.findAll(any(Specification.class)))
+            .thenReturn(Collections.emptyList());
+
+        adapter.findReservations(null, null, null, null, end);
+
+        ArgumentCaptor<Specification<ReservationEntity>> captor = ArgumentCaptor.forClass(Specification.class);
+        verify(reservationRepository).findAll(captor.capture());
+
+        Specification<ReservationEntity> spec = captor.getValue();
+
+        Root<ReservationEntity> root = Mockito.mock(Root.class, Mockito.RETURNS_DEEP_STUBS);
+        CriteriaQuery<?> query = Mockito.mock(CriteriaQuery.class);
+        CriteriaBuilder cb = Mockito.mock(CriteriaBuilder.class);
+
+        Predicate p = Mockito.mock(Predicate.class);
+        when(cb.lessThanOrEqualTo(Mockito.<Expression<LocalDate>>any(), eq(end))).thenReturn(p);
+
+        Predicate built = spec.toPredicate(root, query, cb);
+        assertTrue(built == p);
+        verify(cb).lessThanOrEqualTo(Mockito.<Expression<LocalDate>>any(), eq(end));
+        Mockito.verify(cb, Mockito.never()).greaterThanOrEqualTo(Mockito.<Expression<LocalDate>>any(), any(LocalDate.class));
     }
 }
