@@ -27,6 +27,10 @@ public class GetIncomeClientUseCase implements GetIncomeByClientInputPort {
             Client foundClient = findClientByCuiOutputPort.findByCui(clientCui)
                 .orElseThrow(() -> new NotFoundException("El cliente ingresado no existe"));
 
+            if (fromDate != null && toDate != null && fromDate.isAfter(toDate)) {
+                throw new InvalidParameterException("La fecha desde no puede ser mayor a la fecha hasta");
+            }
+
             return findPaymentsByClientOutputPort.findByClient(foundClient.getId().toString(),
                         establishmentId, fromDate, toDate)
                 .stream()
