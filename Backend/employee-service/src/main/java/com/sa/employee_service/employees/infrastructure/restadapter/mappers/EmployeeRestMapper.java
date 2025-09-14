@@ -11,9 +11,8 @@ import com.sa.employee_service.users.infrastructure.restadapter.mappers.UserRest
 
 @Mapper(componentModel = "spring", uses = UserRestMapper.class)
 public interface EmployeeRestMapper {
-
-    @Mapping(source = "createUserRequest", target = "createUserDTO")
+    @Mapping(source = "createUserRequest",
+    target = "createUserDTO")
     public CreateEmployeeDTO toDTO(CreateEmployeeRequest createEmployeeRequest);
-
     public UpdateEmployeeDTO toDTO(UpdateEmployeeRequest updateEmployeeRequest);
 }
